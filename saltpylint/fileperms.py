@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+'''
+    :codeauthor: :email:`Pedro Algarvio (pedro@algarvio.me)`
+    :copyright: © 2015 by the SaltStack Team, see AUTHORS for more details.
+    :license: Apache 2.0, see LICENSE for more details.
+
+
+    saltpylint.fileperms
+    ~~~~~~~~~~~~~~~~~~~~
+
+    PyLint plugin which checks for specific file permissions
+'''
 
 import os
 import glob
