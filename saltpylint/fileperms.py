@@ -5,8 +5,9 @@
     :license: Apache 2.0, see LICENSE for more details.
 
 
-    saltpylint.fileperms
-    ~~~~~~~~~~~~~~~~~~~~
+    ====================================
+    PyLint File Permissions Check Plugin
+    ====================================
 
     PyLint plugin which checks for specific file permissions
 '''
