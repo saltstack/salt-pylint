@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
 The setup script for SaltPyLint
 '''
@@ -17,6 +18,7 @@ except NameError:
     # Let's work around that
     SETUP_DIRNAME = os.path.dirname(sys.argv[0])
 
+
 if SETUP_DIRNAME != '':
     os.chdir(SETUP_DIRNAME)
 
@@ -30,9 +32,10 @@ if 'USE_SETUPTOOLS' in os.environ:
 
 
 if USE_SETUPTOOLS is False:
-    from distutils.core import setup
+    from distutils.core import setup  # pylint: disable=import-error,no-name-in-module
 
-exec(
+
+exec(  # pylint: disable=exec-used
     compile(
         open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py')).read(),
              os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), 'exec'
@@ -41,7 +44,7 @@ exec(
 
 
 NAME = 'SaltPyLint'
-VERSION = __version__
+VERSION = __version__  # pylint: disable=undefined-variable
 DESCRIPTION = (
     'Required PyLint plugins needed in the several SaltStack projects.'
 )
