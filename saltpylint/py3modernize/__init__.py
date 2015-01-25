@@ -150,7 +150,7 @@ class Py3Modernize(BaseChecker):
 
         salt_avail_fixes = set(
             refactor.get_fixers_from_package(
-                'salttesting.pylintplugins.py3modernize.fixes'
+                'saltpylint.py3modernize.fixes'
             )
         )
         avail_fixes = set(refactor.get_fixers_from_package('libmodernize.fixes'))
