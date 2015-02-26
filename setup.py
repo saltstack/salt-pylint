@@ -22,7 +22,7 @@ if SETUP_DIRNAME != '':
 
 
 if 'USE_SETUPTOOLS' in os.environ:
-    try:        from setuptools import setup
+    try:
         from setuptools import setup
         USE_SETUPTOOLS = True
     except ImportError:
