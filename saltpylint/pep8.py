@@ -92,7 +92,7 @@ class _PEP8BaseChecker(BaseChecker):
         '''
         if node.path not in _PROCESSED_NODES:
             stylechecker = StyleGuide(
-                parse_argv=False, config_file=True, quiet=2,
+                parse_argv=False, config_file=False, quiet=2,
                 reporter=PyLintPEP8Reporter
             )
 
