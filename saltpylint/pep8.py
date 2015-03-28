@@ -260,7 +260,7 @@ class PEP8LineLength(_PEP8BaseChecker):
 
     _msgs = {
         'E8501': ('PEP8 %s: line too long (82 > 79 characters)',
-                  'line-too-long-(82->-79-characters)'),
+                  'line-too-long)'),
         'E8502': ('PEP8 %s: the backslash is redundant between brackets',
                   'the-backslash-is-redundant-between-brackets')
     }
@@ -277,21 +277,23 @@ class PEP8Statement(_PEP8BaseChecker):
 
     _msgs = {
         'E8701': ('PEP8 %s: multiple statements on one line (colon)',
-                  'multiple-statements-on-one-line-(colon)'),
+                  'multiple-statements-on-one-line-colon'),
         'E8702': ('PEP8 %s: multiple statements on one line (semicolon)',
-                  'multiple-statements-on-one-line-(semicolon)'),
+                  'multiple-statements-on-one-line-semicolon'),
         'E8703': ('PEP8 %s: statement ends with a semicolon',
                   'statement-ends-with-a-semicolon'),
         'E8711': ("PEP8 %s: comparison to None should be 'if cond is None:'",
-                  "comparison-to-None-should-be-'if-cond-is-None:'"),
+                  "comparison-to-None-should-be-if-cond-is-None"),
         'E8712': ("PEP8 %s: comparison to True should be 'if cond is True:' or 'if cond:'",
-                  "comparison-to-True-should-be-'if-cond-is-True:'-or-'if-cond:'"),
+                  "comparison-to-True-should-be-if-cond-is-True-or-if-cond"),
         'E8713': ("PEP8 %s: test for membership should be 'not in'",
-                  "test-for-membership-should-be 'not in'"),
+                  "test-for-membership-should-be-not-in"),
         'E8714': ("PEP8 %s: test for object identity should be 'is not'",
-                  "test-for-object-identity-should-be-'is not'"),
+                  "test-for-object-identity-should-be-is-not"),
         'E8721': ("PEP8 %s: do not compare types, use 'isinstance()'",
-                  "do-not-compare-types,-use-'isinstance()'"),
+                  "do-not-compare-types-use-isinstance"),
+        'E8731': ("PEP8 %s: do not assign a lambda expression, use a def",
+                  "do-not-assign-a-lambda-expression-use-a-def"),
     }
 
 
