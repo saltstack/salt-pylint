@@ -356,7 +356,7 @@ class BinaryOperatorLineBreaks(_PEP8BaseChecker):
 
     _msgs = {
         'W8503': ("PEP8 %s: line break before binary operator",
-                  "line break before binary operator"),
+                  "line-break-before-binary-operator"),
     }
 
 
