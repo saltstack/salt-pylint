@@ -143,6 +143,8 @@ class PEP8Indentation(_PEP8BaseChecker):
                   'expected-an-indented-block'),
         'E8113': ('PEP8 %s: unexpected indentation',
                   'unexpected-indentation'),
+        'E8114': ('PEP8 %s: indentation is not a multiple of four (comment)',
+                  'indentation-is-not-a-multiple-of-four-comment'),
         'E8121': ('PEP8 %s: continuation line indentation is not a multiple of four',
                   'continuation-line-indentation-is-not-a-multiple-of-four'),
         'E8122': ('PEP8 %s: continuation line missing indentation or outdented',
