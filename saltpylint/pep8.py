@@ -31,7 +31,7 @@ try:
     from pep8 import StyleGuide, BaseReport
     HAS_PEP8 = True
 except ImportError:
-    HAS_PEP8 = False 
+    HAS_PEP8 = False
     warnings.warn(
         'No pep8 library could be imported. No PEP8 check\'s will be done',
         RuntimeWarning
@@ -344,6 +344,17 @@ class PEP8BlankLineWarning(_PEP8BaseChecker):
     _msgs = {
         'W8391': ('PEP8 %s: blank line at end of file',
                   'blank-line-at-end-of-file'),
+    }
+
+
+class BinaryOperatorLineBreaks(_PEP8BaseChecker):
+    '''
+    Process PEP8 W5 codes
+    '''
+
+    _msgs = {
+        'W8503': ("PEP8 %s: line break before binary operator",
+                  "line break before binary operator"),
     }
 
 
