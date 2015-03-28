@@ -214,6 +214,8 @@ class PEP8Whitespace(_PEP8BaseChecker):
                   "inline-comment-should-start-with-'#-'"),
         'E8265': ("PEP8 %s: block comment should start with '# '",
                   "block-comment-should-start-with-'# '"),
+        'E8266': ('PEP8 %s: too many leading ‘#’ for block comment',
+                  'too-many-leading-#-for-block-comment'),
         'E8271': ('PEP8 %s: multiple spaces after keyword',
                   'multiple-spaces-after-keyword'),
         'E8272': ('PEP8 %s: multiple spaces before keyword',
