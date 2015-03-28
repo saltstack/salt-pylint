@@ -248,6 +248,8 @@ class PEP8Import(_PEP8BaseChecker):
     _msgs = {
         'E8401': ('PEP8 %s: multiple imports on one line',
                   'multiple-imports-on-one-line'),
+        'E8402': ('PEP8 %s: module level import not at top of file',
+                  'module-level-import-not-at-top-of-file')
     }
 
 
