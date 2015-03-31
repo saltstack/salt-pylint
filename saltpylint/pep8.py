@@ -154,7 +154,7 @@ class PEP8Indentation(_PEP8BaseChecker):
         'E8122': ('PEP8 %s: continuation line missing indentation or outdented',
                   'continuation-line-missing-indentation-or-outdented'),
         'E8123': ("PEP8 %s: closing bracket does not match indentation of opening bracket's line",
-                  "closing-bracket-does-not-match-indentation-of-opening-bracket's-line"),
+                  "closing-bracket-does-not-match-indentation-of-opening-brackets-line"),
         'E8124': ('PEP8 %s: closing bracket does not match visual indentation',
                   'closing-bracket-does-not-match-visual-indentation'),
         'E8125': ('PEP8 %s: continuation line does not distinguish itself from next logical line',
@@ -184,16 +184,22 @@ class PEP8Whitespace(_PEP8BaseChecker):
     '''
 
     _msgs = {
-        'E8201': ("PEP8 %s: whitespace after '('", "whitespace-after-'('"),
-        'E8202': ("PEP8 %s: whitespace before ')'", "whitespace-before-')'"),
-        'E8203': ("PEP8 %s: whitespace before ':'", "whitespace-before-':'"),
-        'E8211': ("PEP8 %s: whitespace before '('", "whitespace-before-'('"),
+        'E8201': ("PEP8 %s: whitespace after '('",
+                  "whitespace-after-left-parenthesis"),
+        'E8202': ("PEP8 %s: whitespace before ')'",
+                  "whitespace-before-right-parenthesis"),
+        'E8203': ("PEP8 %s: whitespace before ':'",
+                  "whitespace-before-colon"),
+        'E8211': ("PEP8 %s: whitespace before '('",
+                  "whitespace-before-left-parenthesis"),
         'E8221': ('PEP8 %s: multiple spaces before operator',
                   'multiple-spaces-before-operator'),
         'E8222': ('PEP8 %s: multiple spaces after operator',
                   'multiple-spaces-after-operator'),
-        'E8223': ('PEP8 %s: tab before operator', 'tab-before-operator'),
-        'E8224': ('PEP8 %s: tab after operator', 'tab-after-operator'),
+        'E8223': ('PEP8 %s: tab before operator',
+                  'tab-before-operator'),
+        'E8224': ('PEP8 %s: tab after operator',
+                  'tab-after-operator'),
         'E8225': ('PEP8 %s: missing whitespace around operator',
                   'missing-whitespace-around-operator'),
         'E8226': ('PEP8 %s: missing whitespace around arithmetic operator',
@@ -203,25 +209,29 @@ class PEP8Whitespace(_PEP8BaseChecker):
         'E8228': ('PEP8 %s: missing whitespace around modulo operator',
                   'missing-whitespace-around-modulo-operator'),
         'E8231': ("PEP8 %s: missing whitespace after ','",
-                  "missing-whitespace-after-','"),
-        'E8241': ("PEP8 %s: multiple spaces after ','", "multiple-spaces-after-','"),
-        'E8242': ("PEP8 %s: tab after ','", "tab-after-','"),
+                  "missing-whitespace-after-comma"),
+        'E8241': ("PEP8 %s: multiple spaces after ','",
+                  "multiple-spaces-after-comma"),
+        'E8242': ("PEP8 %s: tab after ','",
+                  "tab-after-comma"),
         'E8251': ('PEP8 %s: unexpected spaces around keyword / parameter equals',
-                  'unexpected-spaces-around-keyword-/-parameter-equals'),
+                  'unexpected-spaces-around-keyword-or-parameter-equals'),
         'E8261': ('PEP8 %s: at least two spaces before inline comment',
                   'at-least-two-spaces-before-inline-comment'),
         'E8262': ("PEP8 %s: inline comment should start with '# '",
-                  "inline-comment-should-start-with-'#-'"),
+                  "inline-comment-should-start-with-hashtag-space"),
         'E8265': ("PEP8 %s: block comment should start with '# '",
-                  "block-comment-should-start-with-'# '"),
+                  "block-comment-should-start-with-hashtag-space"),
         'E8266': ('PEP8 %s: too many leading '#' for block comment',
                   'too-many-leading-#-for-block-comment'),
         'E8271': ('PEP8 %s: multiple spaces after keyword',
                   'multiple-spaces-after-keyword'),
         'E8272': ('PEP8 %s: multiple spaces before keyword',
                   'multiple-spaces-before-keyword'),
-        'E8273': ('PEP8 %s: tab after keyword', 'tab-after-keyword'),
-        'E8274': ('PEP8 %s: tab before keyword', 'tab-before-keyword'),
+        'E8273': ('PEP8 %s: tab after keyword',
+                  'tab-after-keyword'),
+        'E8274': ('PEP8 %s: tab before keyword',
+                  'tab-before-keyword'),
     }
 
     msgs_map = {
@@ -238,11 +248,11 @@ class PEP8BlankLine(_PEP8BaseChecker):
 
     _msgs = {
         'E8301': ('PEP8 %s: expected 1 blank line, found 0',
-                  'expected-1-blank-line,-found-0'),
+                  'expected-1-blank-line-found-0'),
         'E8302': ('PEP8 %s: expected 2 blank lines, found 0',
-                  'expected-2-blank-lines,-found-0'),
+                  'expected-2-blank-lines-found-0'),
         'E8303': ('PEP8 %s: too many blank lines (3)',
-                  'too-many-blank-lines-(3)'),
+                  'too-many-blank-lines-3'),
         'E8304': ('PEP8 %s: blank lines found after function decorator',
                   'blank-lines-found-after-function-decorator'),
     }
@@ -313,7 +323,8 @@ class PEP8Runtime(_PEP8BaseChecker):
     _msgs = {
         'E8901': ('PEP8 %s: SyntaxError or IndentationError',
                   'SyntaxError-or-IndentationError'),
-        'E8902': ('PEP8 %s: IOError', 'IOError'),
+        'E8902': ('PEP8 %s: IOError',
+                  'IOError'),
     }
 
 
@@ -337,7 +348,8 @@ class PEP8WhitespaceWarning(_PEP8BaseChecker):
         'W8291': ('PEP8 %s: trailing whitespace',
                   'trailing-whitespace' if pylint_version_info < (1, 0) else
                   'pep8-trailing-whitespace'),
-        'W8292': ('PEP8 %s: no newline at end of file', 'no-newline-at-end-of-file'),
+        'W8292': ('PEP8 %s: no newline at end of file',
+                  'no-newline-at-end-of-file'),
         'W8293': ('PEP8 %s: blank line contains whitespace',
                   'blank-line-contains-whitespace'),
     }
@@ -377,13 +389,13 @@ class PEP8DeprecationWarning(_PEP8BaseChecker):
 
     _msgs = {
         'W8601': ("PEP8 %s: .has_key() is deprecated, use 'in'",
-                  ".has_key()-is-deprecated,-use-'in'"),
+                  ".has_key-is-deprecated-use-in"),
         'W8602': ('PEP8 %s: deprecated form of raising exception',
                   'deprecated-form-of-raising-exception'),
         'W8603': ("PEP8 %s: '<>' is deprecated, use '!='",
-                  "'<>'-is-deprecated,-use-'!='"),
+                  "less-or-more-is-deprecated-use-no-equal"),
         'W8604': ("PEP8 %s: backticks are deprecated, use 'repr()'",
-                  "backticks-are-deprecated,-use-'repr()'")
+                  "backticks-are-deprecated-use-repr")
     }
 
 
