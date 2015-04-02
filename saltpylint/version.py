@@ -8,5 +8,5 @@
     :license: Apache 2.0, see LICENSE for more details.
 '''
 
-__version_info__ = (2015, 3, 31)
-__version__ = '.'.join(map(str, __version_info__))
+__version_info__ = (2015, 4, 3)
+__version__ = '{0[0]}.{0[1]:0>2}.{0[2]:0>2}'.format(__version_info__)
