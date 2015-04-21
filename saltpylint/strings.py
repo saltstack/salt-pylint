@@ -116,6 +116,10 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                         # checking.
                         continue
 
+                    if not isinstance(inferred.value, basestring):
+                        # If it's not a string, continue
+                        continue
+
                     if BAD_FORMATTING_SLOT.findall(inferred.value):
                         if self.config.un_indexed_curly_braces_always_error or \
                                 sys.version_info[:2] < (2, 7):
