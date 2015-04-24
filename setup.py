@@ -69,6 +69,7 @@ setup(
     ],
     packages=[
         'saltpylint',
+        'saltpylint.ext',
         'saltpylint/py3modernize',
         'saltpylint/py3modernize/fixes',
     ],
