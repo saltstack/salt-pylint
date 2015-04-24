@@ -5,11 +5,12 @@
     :license: Apache 2.0, see LICENSE for more details.
 
 
-    ====================================
-    PyLint File Permissions Check Plugin
-    ====================================
+    ===============================================
+    PyLint Minimum Python Version Enforcing Checker
+    ===============================================
 
-    PyLint plugin which checks for specific file permissions
+    PyLint plugin which checks if the code meet the requirements of a targeted
+    minimal version.
 '''
 
 from pylint.interfaces import IRawChecker
@@ -26,7 +27,8 @@ class MininumPythonVersionChecker(BaseChecker):
 
     name = 'mininum-python-version'
     msgs = {'E0598': ('Incompatible Python %s code found: %s',
-                      'minimum-python-version'),
+                      'minimum-python-version',
+                      'The code does not meet the required minimum python version'),
            }
 
     priority = -1
