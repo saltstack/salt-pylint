@@ -106,7 +106,6 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 msgid, node=node.left, args=node.left.value
             )
 
-
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
         func = utils.safe_infer(node.func)
