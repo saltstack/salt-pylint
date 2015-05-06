@@ -12,9 +12,13 @@
     PyLint plugin which checks for specific file permissions
 '''
 
+# Import Python libs
+from __future__ import absolute_import
 import os
 import glob
 import stat
+
+# Import PyLint libs
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 

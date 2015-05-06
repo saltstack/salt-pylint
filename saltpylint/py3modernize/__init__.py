@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+# Import Python libs
+from __future__ import absolute_import
 import difflib
 import warnings
 import logging
+
+# Import PyLint libs
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 

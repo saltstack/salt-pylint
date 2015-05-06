@@ -15,7 +15,7 @@
 
     '''
 
-# Let's use absolute imports
+# Import Python libs
 from __future__ import absolute_import
 import sys
 import logging

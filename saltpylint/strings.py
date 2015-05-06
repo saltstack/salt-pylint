@@ -10,8 +10,12 @@
     Proper string formatting PyLint checker
 '''
 
+# Import Python libs
+from __future__ import absolute_import
 import re
 import sys
+
+# Import PyLint libs
 try:
     # >= pylint 1.0
     import astroid

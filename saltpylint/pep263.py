@@ -10,9 +10,12 @@
     ======================
 '''
 
+# Import Python libs
+from __future__ import absolute_import
 import re
 import itertools
 
+# Import PyLint libs
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 

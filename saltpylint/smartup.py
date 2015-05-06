@@ -15,6 +15,9 @@
 
     '''
 
+# Import Python libs
+from __future__ import absolute_import
+
 # Import PyLint libs
 from astroid import nodes, MANAGER
 
