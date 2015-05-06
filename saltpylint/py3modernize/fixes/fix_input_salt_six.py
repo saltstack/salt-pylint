@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This is a derived work of libmodernize.fixes.fix_input_six which
 # in turn is deriverd work of Lib/lib2to3/fixes/fix_input.py and
 # Lib/lib2to3/fixes/fix_raw_input.py. Those files are under the
