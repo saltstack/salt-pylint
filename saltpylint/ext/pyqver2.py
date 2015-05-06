@@ -25,6 +25,8 @@
 #
 # ############################################################################
 
+# pylint: skip-file
+
 import compiler
 import platform
 import sys
