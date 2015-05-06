@@ -27,7 +27,7 @@ class FilePermsChecker(BaseChecker):
     __implements__ = IRawChecker
 
     name = 'fileperms'
-    msgs = {'E0599': ('Module file has the wrong file permissions: %s',
+    msgs = {'E0599': ('Module file has the wrong file permissions(expected %s): %s',
                       'file-perms',
                       ('Wrong file permissions')),
            }
@@ -62,7 +62,7 @@ class FilePermsChecker(BaseChecker):
 
         module_perms = str(oct(stat.S_IMODE(os.stat(node.file).st_mode)))
         if module_perms != desired_perm:
-            self.add_message('E0599', line=1, args=module_perms)
+            self.add_message('E0599', line=1, args=(desired_perm, module_perms))
 
 
 def register(linter):
