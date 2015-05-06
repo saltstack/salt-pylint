@@ -27,6 +27,7 @@ if 'USE_SETUPTOOLS' in os.environ:
     try:
         from setuptools import setup
         USE_SETUPTOOLS = True
+        SETUP_KWARGS['install_requires'] = ['six']
     except ImportError:
         USE_SETUPTOOLS = False
 
