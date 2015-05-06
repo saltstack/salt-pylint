@@ -31,6 +31,9 @@ try:
 except ImportError:  # < pylint 1.0
     from pylint.interfaces import IASTNGChecker as IAstroidChecker  # pylint: disable=no-name-in-module
 
+# Import 3rd-party libs
+import six
+
 
 MSGS = {
     'W1320': ('String format call with un-indexed curly braces: %r',
@@ -85,7 +88,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
             return
 
         if not (isinstance(node.left, astroid.Const) and
-                isinstance(node.left.value, basestring)):
+                isinstance(node.left.value, six.string_types)):
             return
 
         try:
@@ -120,7 +123,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                         # checking.
                         continue
 
-                    if not isinstance(inferred.value, basestring):
+                    if not isinstance(inferred.value, six.string_types):
                         # If it's not a string, continue
                         continue
 
