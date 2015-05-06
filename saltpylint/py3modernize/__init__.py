@@ -214,7 +214,7 @@ class Py3Modernize(BaseChecker):
                 lineno = exc.context[1][0]
                 line_contents = node.file_stream.readlines()[lineno-1].rstrip()
                 self.add_message('W1698', line=lineno, args=line_contents)
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 self.add_message('W1698', line=1, args=exc)
             return
         except AssertionError as exc:
