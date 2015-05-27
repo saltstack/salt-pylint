@@ -21,6 +21,9 @@ import sys
 import logging
 import warnings
 
+# Import 3rd-party libs
+import six
+
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
@@ -79,7 +82,7 @@ class _PEP8BaseChecker(BaseChecker):
         if self.msgs is None:
             self.msgs = {}
 
-        for code, (message, symbolic) in self._msgs.iteritems():
+        for code, (message, symbolic) in six.iteritems(self._msgs):
             self.msgs[code] = (message, symbolic, message)
 
         BaseChecker.__init__(self, linter=linter)
@@ -400,7 +403,7 @@ class PEP8DeprecationWarning(_PEP8BaseChecker):
 
 
 # ----- Keep Track Of Handled PEP8 MSG IDs -------------------------------------------------------------------------->
-for checker in locals().values():
+for checker in list(locals().values()):
     try:
         if issubclass(checker, _PEP8BaseChecker):
             _KNOWN_PEP8_IDS.extend(checker._msgs.keys())
