@@ -19,6 +19,9 @@ import itertools
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 
+# Import 3rd-party libs
+import six
+
 
 class FileEncodingChecker(BaseChecker):
     '''
@@ -49,7 +52,7 @@ class FileEncodingChecker(BaseChecker):
     options = ()
 
     RE_PEP263 = r'coding[:=]\s*([-\w.]+)'
-    REQ_ENCOD = 'utf-8'
+    REQ_ENCOD = six.b('utf-8')
 
     def process_module(self, node):
         '''
@@ -57,7 +60,7 @@ class FileEncodingChecker(BaseChecker):
 
         the module's content is accessible via node.file_stream object
         '''
-        pep263 = re.compile(self.RE_PEP263)
+        pep263 = re.compile(six.b(self.RE_PEP263))
 
         # Store a reference to the node's file stream position
         current_stream_position = node.file_stream.tell()
@@ -85,8 +88,11 @@ class FileEncodingChecker(BaseChecker):
         #   by E0001, we still test for this
         if multiple_encodings:
             self.add_message('W9901', line=1)
+
         if node.file_encoding:
             pylint_encoding = node.file_encoding.lower()
+            if six.PY3:
+                pylint_encoding = pylint_encoding.encode('utf-8')
             if pep263_encoding and pylint_encoding not in pep263_encoding:
                 self.add_message('W9902', line=1)
         if not pep263_encoding:
