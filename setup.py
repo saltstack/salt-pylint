@@ -22,12 +22,23 @@ except NameError:
 if SETUP_DIRNAME != '':
     os.chdir(SETUP_DIRNAME)
 
+SALT_PYLINT_REQS = os.path.join(os.path.abspath(SETUP_DIRNAME), 'requirements.txt')
+
+def _parse_requirements_file(requirements_file):
+    parsed_requirements = []
+    with open(requirements_file) as rfh:
+        for line in rfh.readlines():
+            line = line.strip()
+            if not line or line.startswith(('#', '-r')):
+                continue
+            parsed_requirements.append(line)
+    return parsed_requirements
 
 if 'USE_SETUPTOOLS' in os.environ:
     try:
         from setuptools import setup
         USE_SETUPTOOLS = True
-        SETUP_KWARGS['install_requires'] = ['six']
+        SETUP_KWARGS['install_requires'] = _parse_requirements_file(SALT_PYLINT_REQS)
     except ImportError:
         USE_SETUPTOOLS = False
 
