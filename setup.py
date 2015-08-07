@@ -4,6 +4,7 @@
 The setup script for SaltPyLint
 '''
 
+import io
 import os
 import sys
 
@@ -49,8 +50,8 @@ if USE_SETUPTOOLS is False:
 
 exec(  # pylint: disable=exec-used
     compile(
-        open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py')).read(),
-             os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), 'exec'
+        io.open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), encoding='utf-8').read(),
+                os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), 'exec'
     )
 )
 
