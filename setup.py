@@ -49,6 +49,7 @@ if USE_SETUPTOOLS is False:
     from distutils.core import setup  # pylint: disable=import-error,no-name-in-module
 
 with io.open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), encoding='utf-8') as fh_:
+    contents = fh_.read()
     if not isinstance(contents, str):
         contents = contents.encode('utf-8')
     exec(  # pylint: disable=exec-used
