@@ -50,6 +50,9 @@ MSGS = {
     'E1321': ('String substitution used instead of string formattting on: %r',
               'string-substitution-usage-error',
               'String substitution used instead of string formattting'),
+    'E1322': ('Repr flag (!r) used in string: %r',
+              'repr-flag-used-in-string',
+              'Repr flag (!r) used in string'),
 }
 
 BAD_FORMATTING_SLOT = re.compile(r'(\{![\w]{1}\}|\{\})')
@@ -106,6 +109,11 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 msgid, node=node.left, args=node.left.value
             )
 
+        if '!r}' in node.left.value:
+            self.add_message(
+                'E1322', node=node.left, args=node.left.value
+            )
+
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
         func = utils.safe_infer(node.func)
@@ -125,6 +133,11 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                     if not isinstance(inferred.value, six.string_types):
                         # If it's not a string, continue
                         continue
+
+                    if '!r}' in inferred.value:
+                        self.add_message(
+                            'E1322', node=inferred, args=inferred.value
+                        )
 
                     if BAD_FORMATTING_SLOT.findall(inferred.value):
                         if self.config.un_indexed_curly_braces_always_error or \
