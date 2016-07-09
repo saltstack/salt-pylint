@@ -15,6 +15,7 @@
 # Import Python libs
 from __future__ import absolute_import
 import os
+import sys
 import glob
 import stat
 
@@ -64,7 +65,13 @@ class FilePermsChecker(BaseChecker):
             # Always include a leading zero
             desired_perm = '0{0}'.format(desired_perm)
 
-        module_perms = str(oct(stat.S_IMODE(os.stat(node.file).st_mode)))
+        if sys.version_info < (3,):
+            module_perms = str(oct(stat.S_IMODE(os.stat(node.file).st_mode)))
+        else:
+            # The octal representation in python 3 has changed to 0o644 instead of 0644
+            if desired_perm[1] != 'o':
+                desired_perm = '0o' + desired_perm[1:]
+            module_perms = oct(stat.S_IMODE(os.stat(node.file).st_mode))
         if module_perms != desired_perm:
             self.add_message('E0599', line=1, args=(desired_perm, module_perms))
 
