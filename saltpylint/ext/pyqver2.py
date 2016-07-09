@@ -27,6 +27,7 @@
 
 # pylint: skip-file
 
+from __future__ import print_function
 import compiler
 import platform
 import sys
@@ -263,7 +264,7 @@ def v27(source):
     if sys.version_info >= (2, 7):
         return qver(source)
     else:
-        print >>sys.stderr, "Not all features tested, run --test with Python 2.7"
+        print("Not all features tested, run --test with Python 2.7", file=sys.stderr)
         return (2, 7)
 
 def qver(source):
@@ -359,7 +360,7 @@ if __name__ == '__main__':
         i += 1
 
     if not files:
-        print >>sys.stderr, """Usage: %s [options] source ...
+        print("""Usage: %s [options] source ...
 
         Report minimum Python version required to run given source files.
 
@@ -367,7 +368,7 @@ if __name__ == '__main__':
             report version triggers at or above version x.y in verbose mode
         -v or --verbose
             print more detailed report of version triggers for each version
-    """ % sys.argv[0]
+    """ % sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
     for fn in files:
@@ -377,19 +378,19 @@ if __name__ == '__main__':
             f.close()
             ver = get_versions(source)
             if Verbose:
-                print fn
+                print(fn)
                 for v in sorted([k for k in ver.keys() if k >= MinVersion], reverse=True):
                     reasons = [x for x in uniq(ver[v]) if x]
                     if reasons:
                         # each reason is (lineno, message)
-                        print "\t%s\t%s" % (".".join(map(str, v)), ", ".join([x[1] for x in reasons]))
+                        print("\t%s\t%s" % (".".join(map(str, v)), ", ".join([x[1] for x in reasons])))
             elif Lint:
                 for v in sorted([k for k in ver.keys() if k >= MinVersion], reverse=True):
                     reasons = [x for x in uniq(ver[v]) if x]
                     for r in reasons:
                         # each reason is (lineno, message)
-                        print "%s:%s: %s %s" % (fn, r[0], ".".join(map(str, v)), r[1])
+                        print("%s:%s: %s %s" % (fn, r[0], ".".join(map(str, v)), r[1]))
             else:
-                print "%s\t%s" % (".".join(map(str, max(ver.keys()))), fn)
+                print("%s\t%s" % (".".join(map(str, max(ver.keys()))), fn))
         except SyntaxError, x:
-            print "%s: syntax error compiling with Python %s: %s" % (fn, platform.python_version(), x)
+            print("%s: syntax error compiling with Python %s: %s" % (fn, platform.python_version(), x))
