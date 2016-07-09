@@ -392,5 +392,5 @@ if __name__ == '__main__':
                         print("%s:%s: %s %s" % (fn, r[0], ".".join(map(str, v)), r[1]))
             else:
                 print("%s\t%s" % (".".join(map(str, max(ver.keys()))), fn))
-        except SyntaxError, x:
+        except SyntaxError as x:
             print("%s: syntax error compiling with Python %s: %s" % (fn, platform.python_version(), x))
