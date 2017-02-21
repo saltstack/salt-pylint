@@ -21,7 +21,16 @@ from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 
 # Import 3rd-party libs
-from saltpylint.ext import pyqver2
+try:
+    from saltpylint.ext import pyqver2
+    HAS_PYQVER = True
+except ImportError:
+    import warnings
+    warnings.warn(
+        'Unable to import saltpylint.ext.pyqver. Running on Python 3? Checker skipped.',
+        RuntimeWarning
+    )
+    HAS_PYQVER = False
 
 
 class MininumPythonVersionChecker(BaseChecker):
@@ -49,6 +58,8 @@ class MininumPythonVersionChecker(BaseChecker):
         '''
         process a module
         '''
+        if not HAS_PYQVER:
+            return
 
         minimum_version = tuple([int(x) for x in self.config.minimum_python_version.split('.')])
         with open(node.path, 'r') as rfh:
