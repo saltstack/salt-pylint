@@ -27,6 +27,8 @@ if HAS_REQUIRED_LIBS:
     FIXES = lib2to3_fix_names
     FIXES.update(opt_in_fix_names)
     FIXES.update(six_fix_names)
+    SALT_FILES = set(refactor.get_fixers_from_package('saltpylint.py3modernize.fixes'))
+    ALL_FIXES = SALT_FILES.union(set(FIXES))
 
     # Let's patch lib2to3.fixer_util.touch_import so we can make it import
     # six from salt.ext
@@ -117,7 +119,7 @@ class Py3Modernize(BaseChecker):
                ),
                ('modernize-nofix',
                 {'default': '', 'type': 'multiple_choice', 'metavar': '<comma-separated-list>',
-                 'choices': sorted(FIXES),
+                 'choices': sorted(ALL_FIXES),
                  'help': 'Comma separated list of fixer names not to fix.'}
                ),
                ('modernize-print-function',
