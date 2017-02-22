@@ -6,10 +6,6 @@ import difflib
 import warnings
 import logging
 
-# Import PyLint libs
-from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseChecker
-
 try:
     from lib2to3 import fixer_util, refactor, pgen2
     from lib2to3.pgen2.parse import ParseError
@@ -22,6 +18,10 @@ except ImportError:
         '\'lib2to3\', unlikely, or \'libmodernize\' was not importable.',
         RuntimeWarning
     )
+
+# Import PyLint libs
+from pylint.interfaces import IRawChecker
+from pylint.checkers import BaseChecker
 
 if HAS_REQUIRED_LIBS:
     FIXES = lib2to3_fix_names
@@ -163,6 +163,11 @@ class Py3Modernize(BaseChecker):
 
         default_fixes = avail_fixes.difference(opt_in_fix_names)
         unwanted_fixes = set(self.config.modernize_nofix)
+
+        # Explicitly disable libmodernize.fixes.fix_dict_six since we have our own implementation
+        # which only fixes `dict.iter<items|keys|values>()` calls
+        unwanted_fixes.add('libmodernize.fixes.fix_dict_six')
+
         if self.config.modernize_six_unicode:
             unwanted_fixes.add('libmodernize.fixes.fix_unicode_future')
         elif self.config.modernize_future_unicode:
