@@ -78,7 +78,7 @@ class BlacklistedImportsChecker(BaseChecker):
 
     def _check_blacklisted_module(self, node, mod_path):
         """check if the module is blacklisted"""
-        for mod_name in self.config.blacklisted_modules:
+        for mod_name in self.config.blacklisted_modules:  # pylint: disable=no-member
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 names = []
                 for name, name_as in node.names:
@@ -99,6 +99,21 @@ class BlacklistedImportsChecker(BaseChecker):
                     if import_from_module == 'salttesting.mock':
                         for name in names:
                             msg = 'Please use \'from tests.support.mock import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
+                    if import_from_module == 'salttesting.parser':
+                        for name in names:
+                            msg = 'Please use \'from tests.support.parser import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
+                    if import_from_module == 'salttesting.case':
+                        for name in names:
+                            msg = 'Please use \'from tests.support.case import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
+                    if import_from_module == 'salttesting.unit':
+                        for name in names:
+                            msg = 'Please use \'from tests.support.unit import {0}\''.format(name)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                         continue
                     if names:
@@ -133,17 +148,17 @@ class BlacklistedImportsChecker(BaseChecker):
                                     msg = 'Please use \'from tests.support.paths import {0}\''.format(name)
                                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
                                     continue
-                                msg = 'Please use \'from tests.{0} import {1}\''.format(mod_name, name)
+                                msg = 'Please use \'from tests.{0} import {1}\''.format(mod_path, name)
                                 self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
                                 continue
-                            msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0} from {1}'.format(name, mod_name)
+                            msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0} from {1}'.format(name, mod_path)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                 except AttributeError:
                     if mod_name in ('integration', 'unit'):
                         msg = 'Please use \'import tests.{0} as {0}\''.format(mod_name)
                         self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
                         continue
-                    msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0}'.format(mod_name)
+                    msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0}'.format(mod_path)
                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
 
     def _get_node_source_filename(self, node):
