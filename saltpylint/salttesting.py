@@ -116,6 +116,11 @@ class BlacklistedImportsChecker(BaseChecker):
                             msg = 'Please use \'from tests.support.unit import {0}\''.format(name)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                         continue
+                    if import_from_module == 'salttesting.mixins':
+                        for name in names:
+                            msg = 'Please use \'from tests.support.mixins import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
                     if names:
                         for name in names:
                             if name in ('TestLoader', 'TextTestRunner',  'TestCase', 'expectedFailure',
