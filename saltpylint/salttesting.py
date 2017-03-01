@@ -145,11 +145,14 @@ class BlacklistedImportsChecker(BaseChecker):
                                             'TMP_SUB_MINION_CONF_DIR',
                                             'TMP_SYNDIC_MINION_CONF_DIR',
                                             'TMP_SYNDIC_MASTER_CONF_DIR',
+                                            'CODE_DIR',
+                                            'TESTS_DIR',
                                             'CONF_DIR',
                                             'PILLAR_DIR',
                                             'TMP_SCRIPT_DIR',
                                             'ENGINES_DIR',
-                                            'LOG_HANDLERS_DIR'):
+                                            'LOG_HANDLERS_DIR',
+                                            'INTEGRATION_TEST_DIR'):
                                     msg = 'Please use \'from tests.support.paths import {0}\''.format(name)
                                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
                                     continue
