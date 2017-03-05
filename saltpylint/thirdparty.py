@@ -59,8 +59,7 @@ class ThirdPartyImportsChecker(BaseChecker):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._inside_try_except = False
-        self._allowed_3rd_party_modules = set(
-                ('salt', ) + tuple(self.config.allowed_3rd_party_modules))  # pylint: disable=no-member
+        self._allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
 
     @check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
