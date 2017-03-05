@@ -15,11 +15,12 @@
 
 # Import python libs
 from __future__ import absolute_import
+import sys
 
 # Import pylint libs
 import astroid
 import astroid.exceptions
-from astroid.modutils import get_module_part, is_standard_module
+from astroid.modutils import is_relative, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
@@ -37,7 +38,7 @@ def get_import_package(node, modname):
 
     Given modname is 'salt.utils', returns 'salt'
     '''
-    return get_module_part(modname, node.root().file).split('.')[0]
+    return modname.split('.')[0]
 
 
 class ThirdPartyImportsChecker(BaseChecker):
@@ -56,10 +57,20 @@ class ThirdPartyImportsChecker(BaseChecker):
             'help': 'Known 3rd-party modules which don\' require being gated, separated by a comma'}),
     )
 
+    known_py2_modules = ('__builtin__', 'exceptions')
+    known_py3_modules = ('ipaddress', 'builtins')
+    known_common_std_modules = ('__future__',)
+    known_std_modules = known_py2_modules + known_py3_modules + known_common_std_modules
+
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._inside_try_except = False
-        self._allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
+
+    @property
+    def allowed_3rd_party_modules(self):
+        if not hasattr(self, '_allowed_3rd_party_modules'):
+            self._allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
+        return self._allowed_3rd_party_modules
 
     @check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
@@ -80,29 +91,34 @@ class ThirdPartyImportsChecker(BaseChecker):
         self._check_third_party_import(node, node.modname)
 
     def _check_third_party_import(self, node, modname):
-        if modname and modname in ('__future__',):
+        if modname in self.known_std_modules:
             # Don't even care about these
             return
         module_file = node.root().file
+        if is_relative(modname, module_file):
+            return
         try:
-            imported_module = node.do_import_module(modname)
-            importedmodname = get_module_part(imported_module.name, module_file)
-            if not is_standard_module(importedmodname):
+            if not is_standard_module(modname):
                 if self._inside_try_except is False:
-                    if get_import_package(node, modname) in self._allowed_3rd_party_modules:
+                    if get_import_package(node, modname) in self.allowed_3rd_party_modules:
                         return
                     self.add_message('3rd-party-module-not-gated', node=node, args=modname)
+        except astroid.exceptions.AstroidBuildingException:
+            # Failed to import
+            if self._inside_try_except is False:
+                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
+                    return
+                self.add_message('3rd-party-module-not-gated', node=node, args=modname)
         except astroid.exceptions.InferenceError:
             # Failed to import
             if self._inside_try_except is False:
-                if get_import_package(node, modname) in self._allowed_3rd_party_modules:
+                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
                     return
                 self.add_message('3rd-party-module-not-gated', node=node, args=modname)
-                return
         except ImportError:
             # Definitly not a standard library import
             if self._inside_try_except is False:
-                if get_import_package(node, modname) in self._allowed_3rd_party_modules:
+                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
                     return
                 self.add_message('3rd-party-module-not-gated', node=node, args=modname)
 
