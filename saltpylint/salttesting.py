@@ -57,7 +57,7 @@ class BlacklistedImportsChecker(BaseChecker):
 
     @check_messages('blacklisted-imports')
     def visit_import(self, node):
-        """triggered when an import statement is seen"""
+        '''triggered when an import statement is seen'''
         module_filename = self._get_node_source_filename(node)
         if module_filename and not fnmatch.fnmatch(module_filename, 'test_*.py*'):
             return
@@ -69,7 +69,7 @@ class BlacklistedImportsChecker(BaseChecker):
 
     @check_messages('blacklisted-imports')
     def visit_importfrom(self, node):
-        """triggered when a from statement is seen"""
+        '''triggered when a from statement is seen'''
         module_filename = self._get_node_source_filename(node)
         if module_filename and not fnmatch.fnmatch(module_filename, 'test_*.py*'):
             return
@@ -77,7 +77,7 @@ class BlacklistedImportsChecker(BaseChecker):
         self._check_blacklisted_module(node, basename)
 
     def _check_blacklisted_module(self, node, mod_path):
-        """check if the module is blacklisted"""
+        '''check if the module is blacklisted'''
         for mod_name in self.config.blacklisted_modules:  # pylint: disable=no-member
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 names = []
@@ -189,5 +189,5 @@ class BlacklistedImportsChecker(BaseChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    '''required method to auto register this checker'''
     linter.register_checker(BlacklistedImportsChecker(linter))
