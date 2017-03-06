@@ -101,7 +101,7 @@ class ThirdPartyImportsChecker(BaseChecker):
 
         base_modname = modname.split('.', 1)[0]
         import_modname = modname
-        while import_modname != base_modname:
+        while True:
             try:
                 imported_module = node.do_import_module(import_modname)
                 if not imported_module:
@@ -114,7 +114,7 @@ class ThirdPartyImportsChecker(BaseChecker):
                 # Because `moves` is a dynamic/runtime module
                 import_modname = import_modname.rsplit('.', 1)[0]
 
-            if not import_modname:
+            if import_modname == base_modname or not import_modname:
                 break
 
         try:
