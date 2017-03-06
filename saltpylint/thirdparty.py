@@ -99,14 +99,23 @@ class ThirdPartyImportsChecker(BaseChecker):
             # Is the import relative to the curent module being checked
             return
 
-        try:
-            imported_module = node.do_import_module(modname)
-            if imported_module.file.startswith(self.cwd):
-                # This is an import to package under the project being tested
-                return
-        except Exception:  # pylint: disable=broad-except
-            # Carry on the remaining checks
-            pass
+        base_modname = modname.split('.', 1)[0]
+        import_modname = modname
+        while import_modname != base_modname:
+            try:
+                imported_module = node.do_import_module(import_modname)
+                if not imported_module:
+                    break
+                if imported_module.file.startswith(self.cwd):
+                    # This is an import to package under the project being tested
+                    return
+            except Exception:  # pylint: disable=broad-except
+                # This is, for example, from salt.ext.six.moves import Y
+                # Because `moves` is a dynamic/runtime module
+                import_modname = import_modname.rsplit('.', 1)[0]
+
+            if not import_modname:
+                break
 
         try:
             if not is_standard_module(modname):
