@@ -26,13 +26,19 @@ MSGS = {
     'W8402': ('Uses of a blacklisted module %r: %s',
               'blacklisted-module',
               'Used a module marked as blacklisted is imported.'),
-    'W8403': ('Uses of a blacklisted import %r: %s',
+    'W8403': ('Uses of a blacklisted external module %r: %s',
+              'blacklisted-external-module',
+              'Used a module marked as blacklisted is imported.'),
+    'W8404': ('Uses of a blacklisted import %r: %s',
               'blacklisted-import',
               'Used an import marked as blacklisted.'),
-    'W8404': ('Uses of blacklisted test module execution code: %s',
+    'W8405': ('Uses of an external blacklisted import %r: %s',
+              'blacklisted-external-import',
+              'Used an external import marked as blacklisted.'),
+    'W8406': ('Uses of blacklisted test module execution code: %s',
               'blacklisted-test-module-execution',
               'Uses of blacklisted test module execution code.'),
-    'W8405': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
+    'W8407': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
               'Please remove the import and any calls to \'ensure_in_syspath()\'.',
               'blacklisted-syspath-update',
               'Uses of blacklisted sys.path updating through ensure_in_syspath.'),
@@ -47,19 +53,15 @@ class BlacklistedImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
-    options = (
-        ('blacklisted-modules', {
-            'default': ('salttesting', 'integration', 'unit'),
-            'type': 'csv',
-            'metavar': '<modules>',
-            'help': 'Blacklisted modules which should not be used, separated by a comma'}),
-    )
+    def open(self):
+        self.blacklisted_modules = ('salttesting', 'integration', 'unit', 'mock')
 
     @check_messages('blacklisted-imports')
     def visit_import(self, node):
         '''triggered when an import statement is seen'''
-        module_filename = self._get_node_source_filename(node)
-        if module_filename and not fnmatch.fnmatch(module_filename, 'test_*.py*'):
+        module_filename = node.root().file
+        if fnmatch.fnmatch(module_filename, '__init__.py*') and \
+                not fnmatch.fnmatch(module_filename, 'test_*.py*'):
             return
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -70,15 +72,16 @@ class BlacklistedImportsChecker(BaseChecker):
     @check_messages('blacklisted-imports')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
-        module_filename = self._get_node_source_filename(node)
-        if module_filename and not fnmatch.fnmatch(module_filename, 'test_*.py*'):
+        module_filename = node.root().file
+        if fnmatch.fnmatch(module_filename, '__init__.py*') and \
+                not fnmatch.fnmatch(module_filename, 'test_*.py*'):
             return
         basename = node.modname
         self._check_blacklisted_module(node, basename)
 
     def _check_blacklisted_module(self, node, mod_path):
         '''check if the module is blacklisted'''
-        for mod_name in self.config.blacklisted_modules:  # pylint: disable=no-member
+        for mod_name in self.blacklisted_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 names = []
                 for name, name_as in node.names:
@@ -96,10 +99,14 @@ class BlacklistedImportsChecker(BaseChecker):
                             msg = 'Please use \'from tests.support.helpers import {0}\''.format(name)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                         continue
-                    if import_from_module == 'salttesting.mock':
+                    if import_from_module in ('salttesting.mock', 'mock'):
                         for name in names:
                             msg = 'Please use \'from tests.support.mock import {0}\''.format(name)
-                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                            if import_from_module == 'salttesting.mock':
+                                message_id = 'blacklisted-module'
+                            else:
+                                message_id = 'blacklisted-external-module'
+                            self.add_message(message_id, node=node, args=(mod_path, msg))
                         continue
                     if import_from_module == 'salttesting.parser':
                         for name in names:
@@ -162,30 +169,17 @@ class BlacklistedImportsChecker(BaseChecker):
                             msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0} from {1}'.format(name, mod_path)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                 except AttributeError:
-                    if mod_name in ('integration', 'unit'):
-                        msg = 'Please use \'import tests.{0} as {0}\''.format(mod_name)
-                        self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
+                    if mod_name in ('integration', 'unit', 'mock'):
+                        if mod_name in ('integration', 'unit'):
+                            msg = 'Please use \'import tests.{0} as {0}\''.format(mod_name)
+                            message_id = 'blacklisted-import'
+                        else:
+                            msg = 'Please use \'import tests.supprt.{0} as {0}\''.format(mod_name)
+                            message_id = 'blacklisted-external-import'
+                        self.add_message(message_id, node=node, args=(mod_path, msg))
                         continue
                     msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0}'.format(mod_path)
                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
-
-    def _get_node_source_filename(self, node):
-        levels = 10
-        parent = node
-        while True:
-            if parent is None:
-                break
-            if isinstance(parent, astroid.Module):
-                break
-            if not levels:
-                break
-            levels -= 1
-            parent = node.parent
-        try:
-            module_filename = os.path.basename(parent.source_file)
-            return module_filename
-        except AttributeError:
-            return
 
 
 def register(linter):
