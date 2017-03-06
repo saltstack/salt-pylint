@@ -54,7 +54,7 @@ class BlacklistedImportsChecker(BaseChecker):
     priority = -2
 
     def open(self):
-        self.blacklisted_modules = ('salttesting', 'integration', 'unit', 'mock')
+        self.blacklisted_modules = ('salttesting', 'integration', 'unit', 'mock', 'six')
 
     @check_messages('blacklisted-imports')
     def visit_import(self, node):
@@ -128,6 +128,11 @@ class BlacklistedImportsChecker(BaseChecker):
                             msg = 'Please use \'from tests.support.mixins import {0}\''.format(name)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                         continue
+                    if import_from_module == 'six':
+                        for name in names:
+                            msg = 'Please use \'from salt.ext.six import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
                     if names:
                         for name in names:
                             if name in ('TestLoader', 'TextTestRunner',  'TestCase', 'expectedFailure',
@@ -169,12 +174,15 @@ class BlacklistedImportsChecker(BaseChecker):
                             msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0} from {1}'.format(name, mod_path)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                 except AttributeError:
-                    if mod_name in ('integration', 'unit', 'mock'):
+                    if mod_name in ('integration', 'unit', 'mock', 'six'):
                         if mod_name in ('integration', 'unit'):
                             msg = 'Please use \'import tests.{0} as {0}\''.format(mod_name)
                             message_id = 'blacklisted-import'
-                        else:
-                            msg = 'Please use \'import tests.supprt.{0} as {0}\''.format(mod_name)
+                        elif mod_name == 'mock':
+                            msg = 'Please use \'import tests.support.{0} as {0}\''.format(mod_name)
+                            message_id = 'blacklisted-external-import'
+                        elif mod_name == 'six':
+                            msg = 'Please use \'import salt.ext.{0} as {0}\''.format(name)
                             message_id = 'blacklisted-external-import'
                         self.add_message(message_id, node=node, args=(mod_path, msg))
                         continue
