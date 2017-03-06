@@ -26,13 +26,19 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
 MSGS = {
-    'W8410': ('3rd-party module import is not gated: %s',
+    'W8410': ('3rd-party module import is not gated in a try/except: %r',
               '3rd-party-module-not-gated',
-              '3rd-party module imported without being gated.'),
+              '3rd-party module imported without being gated in a try/except.'),
+    'C8410': ('3rd-party local module import is not gated in a try/except: %r. '
+              'Consider importing at the module global scope level and gate it '
+              'in a try/except.',
+              '3rd-party-local-module-not-gated',
+              '3rd-party module locally imported without being gated. Consider importing '
+              'at the module global scope level and gate it in a try/except'),
     }
 
 
-def get_import_package(node, modname):
+def get_import_package(modname):
     '''
     Return the import package.
 
@@ -65,11 +71,23 @@ class ThirdPartyImportsChecker(BaseChecker):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._inside_try_except = False
+        self._inside_funcdef = False
+        self._inside_if = False
+        self.cwd = self.allowed_3rd_party_modules = None
 
     def open(self):
         super(ThirdPartyImportsChecker, self).open()
         self.cwd = os.getcwd()
         self.allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
+
+    # pylint: disable=unused-argument
+    @check_messages('3rd-party-imports')
+    def visit_if(self, node):
+        self._inside_if = True
+
+    @check_messages('3rd-party-imports')
+    def leave_if(self, node):
+        self._inside_if = True
 
     @check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
@@ -78,6 +96,15 @@ class ThirdPartyImportsChecker(BaseChecker):
     @check_messages('3rd-party-imports')
     def leave_tryexcept(self, node):
         self._inside_try_except = False
+
+    @check_messages('3rd-party-imports')
+    def visit_functiondef(self, node):
+        self._inside_funcdef = True
+
+    @check_messages('3rd-party-imports')
+    def leave_functiondef(self, node):
+        self._inside_funcdef = True
+    # pylint: enable=unused-argument
 
     @check_messages('3rd-party-imports')
     def visit_import(self, node):
@@ -123,27 +150,43 @@ class ThirdPartyImportsChecker(BaseChecker):
         try:
             if not is_standard_module(modname):
                 if self._inside_try_except is False:
-                    if get_import_package(node, modname) in self.allowed_3rd_party_modules:
+                    if get_import_package(modname) in self.allowed_3rd_party_modules:
                         return
-                    self.add_message('3rd-party-module-not-gated', node=node, args=modname)
+                    if self._inside_if or self._inside_funcdef:
+                        message_id = '3rd-party-local-module-not-gated'
+                    else:
+                        message_id = '3rd-party-module-not-gated'
+                    self.add_message(message_id, node=node, args=modname)
         except astroid.exceptions.AstroidBuildingException:
             # Failed to import
             if self._inside_try_except is False:
-                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
+                if get_import_package(modname) in self.allowed_3rd_party_modules:
                     return
-                self.add_message('3rd-party-module-not-gated', node=node, args=modname)
+                if self._inside_if or self._inside_funcdef:
+                    message_id = '3rd-party-local-module-not-gated'
+                else:
+                    message_id = '3rd-party-module-not-gated'
+                self.add_message(message_id, node=node, args=modname)
         except astroid.exceptions.InferenceError:
             # Failed to import
             if self._inside_try_except is False:
-                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
+                if get_import_package(modname) in self.allowed_3rd_party_modules:
                     return
-                self.add_message('3rd-party-module-not-gated', node=node, args=modname)
+                if self._inside_if or self._inside_funcdef:
+                    message_id = '3rd-party-local-module-not-gated'
+                else:
+                    message_id = '3rd-party-module-not-gated'
+                self.add_message(message_id, node=node, args=modname)
         except ImportError:
             # Definitly not a standard library import
             if self._inside_try_except is False:
-                if get_import_package(node, modname) in self.allowed_3rd_party_modules:
+                if get_import_package(modname) in self.allowed_3rd_party_modules:
                     return
-                self.add_message('3rd-party-module-not-gated', node=node, args=modname)
+                if self._inside_if or self._inside_funcdef:
+                    message_id = '3rd-party-local-module-not-gated'
+                else:
+                    message_id = '3rd-party-module-not-gated'
+                self.add_message(message_id, node=node, args=modname)
 
 
 def register(linter):
