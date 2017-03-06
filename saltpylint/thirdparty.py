@@ -15,7 +15,7 @@
 
 # Import python libs
 from __future__ import absolute_import
-import sys
+import os
 
 # Import pylint libs
 import astroid
@@ -66,11 +66,10 @@ class ThirdPartyImportsChecker(BaseChecker):
         BaseChecker.__init__(self, linter)
         self._inside_try_except = False
 
-    @property
-    def allowed_3rd_party_modules(self):
-        if not hasattr(self, '_allowed_3rd_party_modules'):
-            self._allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
-        return self._allowed_3rd_party_modules
+    def open(self):
+        super(ThirdPartyImportsChecker, self).open()
+        self.cwd = os.getcwd()
+        self.allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
 
     @check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
@@ -95,8 +94,20 @@ class ThirdPartyImportsChecker(BaseChecker):
             # Don't even care about these
             return
         module_file = node.root().file
+
         if is_relative(modname, module_file):
+            # Is the import relative to the curent module being checked
             return
+
+        try:
+            imported_module = node.do_import_module(modname)
+            if imported_module.file.startswith(self.cwd):
+                # This is an import to package under the project being tested
+                return
+        except Exception:  # pylint: disable=broad-except
+            # Carry on the remaining checks
+            pass
+
         try:
             if not is_standard_module(modname):
                 if self._inside_try_except is False:
