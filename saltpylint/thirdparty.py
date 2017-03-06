@@ -109,6 +109,9 @@ class ThirdPartyImportsChecker(BaseChecker):
                 if imported_module.file.startswith(self.cwd):
                     # This is an import to package under the project being tested
                     return
+                # If we reached this far, we were able to import the module but it's
+                # not considered a module from within the project being checked
+                break
             except Exception:  # pylint: disable=broad-except
                 # This is, for example, from salt.ext.six.moves import Y
                 # Because `moves` is a dynamic/runtime module
