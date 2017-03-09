@@ -19,7 +19,7 @@ load-plugins=saltpylint.pep8,
 
 # Fileperms Lint Plugin Settings
 fileperms-default = 0644
-#fileperms-ignore-paths =
+fileperms-ignore-paths = setup.py
 
 
 # Py3 Modernize PyLint Plugin Settings

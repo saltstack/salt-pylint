@@ -60,7 +60,7 @@ BAD_FORMATTING_SLOT = re.compile(r'(\{![\w]{1}\}|\{\})')
 
 class StringCurlyBracesFormatIndexChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)  # pylint: disable=unresolved-interface
+    __implements__ = IAstroidChecker
 
     name = 'string'
     msgs = MSGS

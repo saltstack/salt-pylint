@@ -13,11 +13,9 @@
 
 # Import python libs
 from __future__ import absolute_import
-import os
 import fnmatch
 
 # Import pylint libs
-import astroid
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
@@ -145,7 +143,7 @@ class BlacklistedUsageChecker(BaseChecker):
                         continue
                     if names:
                         for name in names:
-                            if name in ('TestLoader', 'TextTestRunner',  'TestCase', 'expectedFailure',
+                            if name in ('TestLoader', 'TextTestRunner', 'TestCase', 'expectedFailure',
                                         'TestSuite', 'skipIf', 'TestResult'):
                                 msg = 'Please use \'from tests.support.unit import {0}\''.format(name)
                                 self.add_message('blacklisted-module', node=node, args=(mod_path, msg))

@@ -3,8 +3,8 @@
 '''
 The setup script for SaltPyLint
 '''
-
-from __future__ import with_statement
+# pylint: disable=file-perms,wrong-import-position
+from __future__ import absolute_import, with_statement
 import io
 import os
 import sys
@@ -25,6 +25,7 @@ if SETUP_DIRNAME != '':
     os.chdir(SETUP_DIRNAME)
 
 SALT_PYLINT_REQS = os.path.join(os.path.abspath(SETUP_DIRNAME), 'requirements.txt')
+
 
 def _parse_requirements_file(requirements_file):
     parsed_requirements = []

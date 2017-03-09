@@ -49,7 +49,7 @@ optimize-ast=no
 
 # Fileperms Lint Plugin Settings
 fileperms-default = 0644
-#fileperms-ignore-paths =
+fileperms-ignore-paths = setup.py
 
 # Py3 Modernize PyLint Plugin Settings
 modernize-nofix = libmodernize.fixes.fix_dict_six

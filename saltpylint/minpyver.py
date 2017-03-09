@@ -25,7 +25,7 @@ try:
     from saltpylint.ext import pyqver2
     HAS_PYQVER = True
 except ImportError:
-    import warnings
+    import warnings  # pylint: disable=wrong-import-order
     warnings.warn(
         'Unable to import saltpylint.ext.pyqver. Running on Python 3? Checker skipped.',
         RuntimeWarning
