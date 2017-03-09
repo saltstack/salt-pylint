@@ -54,7 +54,12 @@ class BlacklistedUsageChecker(BaseChecker):
     priority = -2
 
     def open(self):
-        self.blacklisted_modules = ('salttesting', 'integration', 'unit', 'mock', 'six')
+        self.blacklisted_modules = ('salttesting',
+                                    'integration',
+                                    'unit',
+                                    'mock',
+                                    'six',
+                                    'distutils.version')
 
     @check_messages('blacklisted-usage')
     def visit_import(self, node):
@@ -133,6 +138,11 @@ class BlacklistedUsageChecker(BaseChecker):
                             msg = 'Please use \'from salt.ext.six import {0}\''.format(name)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                         continue
+                    if import_from_module == 'distutils.version':
+                        for name in names:
+                            msg = 'Please use \'from salt.utils.versions import {0}\''.format(name)
+                            self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                        continue
                     if names:
                         for name in names:
                             if name in ('TestLoader', 'TextTestRunner',  'TestCase', 'expectedFailure',
@@ -174,7 +184,7 @@ class BlacklistedUsageChecker(BaseChecker):
                             msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0} from {1}'.format(name, mod_path)
                             self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                 except AttributeError:
-                    if mod_name in ('integration', 'unit', 'mock', 'six'):
+                    if mod_name in ('integration', 'unit', 'mock', 'six', 'distutils.version'):
                         if mod_name in ('integration', 'unit'):
                             msg = 'Please use \'import tests.{0} as {0}\''.format(mod_name)
                             message_id = 'blacklisted-import'
@@ -184,6 +194,9 @@ class BlacklistedUsageChecker(BaseChecker):
                         elif mod_name == 'six':
                             msg = 'Please use \'import salt.ext.{0} as {0}\''.format(name)
                             message_id = 'blacklisted-external-import'
+                        elif mod_name == 'distutils.version':
+                            msg = 'Please use \'import salt.utils.versions\' instead'
+                            message_id = 'blacklisted-import'
                         self.add_message(message_id, node=node, args=(mod_path, msg))
                         continue
                     msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0}'.format(mod_path)
