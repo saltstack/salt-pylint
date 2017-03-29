@@ -13,14 +13,16 @@
 
 # Import python libs
 from __future__ import absolute_import
+import os
 import fnmatch
 
 # Import pylint libs
+import astroid
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
-MSGS = {
+BLACKLISTED_IMPORTS_MSGS = {
     'W8402': ('Uses of a blacklisted module %r: %s',
               'blacklisted-module',
               'Used a module marked as blacklisted is imported.'),
@@ -43,12 +45,12 @@ MSGS = {
     }
 
 
-class BlacklistedUsageChecker(BaseChecker):
+class BlacklistedImportsChecker(BaseChecker):
 
     __implements__ = IAstroidChecker
 
-    name = 'blacklisted-usage'
-    msgs = MSGS
+    name = 'blacklisted-imports'
+    msgs = BLACKLISTED_IMPORTS_MSGS
     priority = -2
 
     def open(self):
@@ -61,7 +63,7 @@ class BlacklistedUsageChecker(BaseChecker):
                                     'unittest',
                                     'unittest2')
 
-    @check_messages('blacklisted-usage')
+    @check_messages('blacklisted-imports')
     def visit_import(self, node):
         '''triggered when an import statement is seen'''
         module_filename = node.root().file
@@ -74,7 +76,7 @@ class BlacklistedUsageChecker(BaseChecker):
         for name in names:
             self._check_blacklisted_module(node, name)
 
-    @check_messages('blacklisted-usage')
+    @check_messages('blacklisted-imports')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
         module_filename = node.root().file
@@ -211,9 +213,149 @@ class BlacklistedUsageChecker(BaseChecker):
                     msg = 'Please report this error to SaltStack so we can fix it: Trying to import {0}'.format(mod_path)
                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
 
+BLACKLISTED_LOADER_USAGE_MSGS = {
+    'W8501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
+              'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
+              'blacklisted-loader-dunder-setattr',
+              'Uses a blacklisted salt loader dunder usage in tests.'),
+    'W8502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
+              'Use \'salt.support.mock\' and \'patch()\' instead.',
+              'blacklisted-loader-setattr',
+              'Uses a blacklisted salt loader dunder usage in tests.'),
+    'W8503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
+              'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
+              'blacklisted-loader-dunder-update',
+              'Uses a blacklisted salt loader dunder usage in tests.'),
+}
+
+
+class BlacklistedLoaderModulesUsageChecker(BaseChecker):
+
+    __implements__ = IAstroidChecker
+
+    name = 'blacklisted-loader-modules-usage'
+    msgs = BLACKLISTED_LOADER_USAGE_MSGS
+    priority = -2
+
+    def open(self):
+        self.process_module = False
+        self.salt_dunders = (
+            '__opts__', '__salt__', '__runner__', '__context__', '__utils__',
+            '__ext_pillar__', '__thorium__', '__states__', '__serializers__',
+            '__ret__', '__grains__', '__pillar__', '__sdb__', '__proxy__',
+            '__low__', '__orchestration_jid__', '__running__', '__intance_id__',
+            '__lowstate__', '__env__'
+        )
+        self.imported_salt_modules = {}
+
+    def close(self):
+        self.process_module = False
+        self.imported_salt_modules = {}
+
+    @check_messages('blacklisted-loader-modules-usage')
+    def visit_module(self, node):
+        module_filename = node.root().file
+        if not fnmatch.fnmatch(os.path.basename(module_filename), 'test_*.py*'):
+            return
+        self.process_module = True
+
+    @check_messages('blacklisted-loader-modules-usage')
+    def leave_module(self, node):
+        if self.process_module:
+            # Reset
+            self.process_module = False
+            self.imported_salt_modules = {}
+
+    @check_messages('blacklisted-loader-modules-usage')
+    def visit_import(self, node):
+        '''triggered when an import statement is seen'''
+        if self.process_module:
+            # Store salt imported modules
+            for module, import_as in node.names:
+                if not module.startswith('salt'):
+                    continue
+                if import_as and import_as not in self.imported_salt_modules:
+                    self.imported_salt_modules[import_as] = module
+                    continue
+                if module not in self.imported_salt_modules:
+                    self.imported_salt_modules[module] = module
+
+    @check_messages('blacklisted-loader-modules-usage')
+    def visit_importfrom(self, node):
+        '''triggered when a from statement is seen'''
+        if self.process_module:
+            if not node.modname.startswith('salt'):
+                return
+            # Store salt imported modules
+            for module, import_as in node.names:
+                if import_as and import_as not in self.imported_salt_modules:
+                    self.imported_salt_modules[import_as] = import_as
+                    continue
+                if module not in self.imported_salt_modules:
+                    self.imported_salt_modules[module] = module
+
+    @check_messages('blacklisted-loader-usage')
+    def visit_assign(self, node, *args):
+        if not self.process_module:
+            return
+
+        node_left = node.targets[0]
+
+        if isinstance(node_left, astroid.Subscript):
+            # Were're changing an existing attribute
+            if not isinstance(node_left.value, astroid.Attribute):
+                return
+            if node_left.value.attrname in self.salt_dunders:
+                self.add_message(
+                    'blacklisted-loader-dunder-update',
+                    node=node,
+                    args=(node_left.value.attrname,
+                          self.imported_salt_modules[node_left.value.expr.name])
+                )
+                return
+
+        #if isinstance(node_left, astroid.Attribute):
+        #    return
+        if not hasattr(node_left, 'expr'):
+            return
+        if not isinstance(node_left, astroid.AssignAttr):
+            return
+
+        #if not isinstance(node_left.expr, astroid.AssignAttr):
+        #    return
+
+        try:
+            if node_left.expr.name not in self.imported_salt_modules:
+                # If attributes are not being set on salt's modules,
+                # leave it alone, for now!
+                return
+        except AttributeError:
+            # This mmight not be what we're looking for
+            return
+
+        # we're assigning to an imported salt module!
+        if node_left.attrname in self.salt_dunders:
+            # We're changing salt dunders
+            self.add_message(
+                'blacklisted-loader-dunder-setattr',
+                node=node,
+                args=(node_left.attrname,
+                      self.imported_salt_modules[node_left.expr.name])
+            )
+            return
+
+        # Changing random attributes
+        self.add_message(
+            'blacklisted-loader-setattr',
+            node=node,
+            args=(node_left.attrname,
+                  self.imported_salt_modules[node_left.expr.name])
+        )
+
 
 def register(linter):
     '''
     Required method to auto register this checker
     '''
-    linter.register_checker(BlacklistedUsageChecker(linter))
+    linter.register_checker(BlacklistedImportsChecker(linter))
+    linter.register_checker(BlacklistedLoaderModulesUsageChecker(linter))
