@@ -157,6 +157,14 @@ class BlacklistedImportsChecker(BaseChecker):
                                 msg = 'Please use \'from tests.support.unit import {0}\''.format(name)
                                 self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
                                 continue
+                            if name in ('SaltReturnAssertsMixin', 'SaltMinionEventAssertsMixin'):
+                                msg = 'Please use \'from tests.support.mixins import {0}\''.format(name)
+                                self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                                continue
+                            if name in ('ModuleCase', 'SyndicCase', 'ShellCase', 'SSHCase'):
+                                msg = 'Please use \'from tests.support.case import {0}\''.format(name)
+                                self.add_message('blacklisted-module', node=node, args=(mod_path, msg))
+                                continue
                             if name == 'run_tests':
                                 msg = 'Please remove the \'if __name__ == "__main__":\' section from the end of the module'
                                 self.add_message('blacklisted-test-module-execution', node=node, args=msg)
@@ -346,9 +354,76 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
         )
 
 
+MOVED_TEST_CASE_CLASSES_MSGS = {
+    'W8490': ('Moved test case base class detected. %s',
+              'moved-test-case-class',
+              'Moved test case base class detected.'),
+}
+
+
+class MovedTestCaseClassChecker(BaseChecker):
+
+    __implements__ = IAstroidChecker
+
+    name = 'moved-test-case-class'
+    msgs = MOVED_TEST_CASE_CLASSES_MSGS
+    priority = -2
+
+    def open(self):
+        self.process_module = False
+
+    def close(self):
+        self.process_module = False
+
+    @check_messages('moved-test-case-class')
+    def visit_module(self, node):
+        module_filename = node.root().file
+        if not fnmatch.fnmatch(os.path.basename(module_filename), 'test_*.py*'):
+            return
+        self.process_module = True
+
+    @check_messages('moved-test-case-class')
+    def leave_module(self, node):
+        if self.process_module:
+            # Reset
+            self.process_module = False
+
+    @check_messages('moved-test-case-class')
+    def visit_importfrom(self, node):
+        '''triggered when a from statement is seen'''
+        if self.process_module:
+            if not node.modname.startswith('tests.integration'):
+                return
+            # Store salt imported modules
+            for module, import_as in node.names:
+                if import_as:
+                    self._check_moved_imports(node, module, import_as)
+                    continue
+                self._check_moved_imports(node, module)
+
+    @check_messages('moved-test-case-class')
+    def visit_classdef(self, node):
+        for base in node.bases:
+            if base.attrname in ('ModuleCase', 'SyndicCase', 'ShellCase', 'SSHCase'):
+                msg = 'Please use \'from tests.support.case import {0}\''.format(base.attrname)
+            self.add_message('moved-test-case-class', node=node, args=(msg,))
+
+    def _check_moved_imports(self, node, module, import_as=None):
+        names = []
+        for name, name_as in node.names:
+            if name not in ('ModuleCase', 'SyndicCase', 'ShellCase', 'SSHCase'):
+                continue
+            if name_as:
+                msg = 'Please use \'from tests.support.case import {0} as {1}\''.format(name, name_as)
+            else:
+                msg = 'Please use \'from tests.support.case import {0}\''.format(name)
+            self.add_message('moved-test-case-class', node=node, args=(msg,))
+
+
 def register(linter):
     '''
     Required method to auto register this checker
     '''
     linter.register_checker(BlacklistedImportsChecker(linter))
+    linter.register_checker(MovedTestCaseClassChecker(linter))
     linter.register_checker(BlacklistedLoaderModulesUsageChecker(linter))
