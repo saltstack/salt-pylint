@@ -216,15 +216,15 @@ class BlacklistedImportsChecker(BaseChecker):
 BLACKLISTED_LOADER_USAGE_MSGS = {
     'W8501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
-              'blacklisted-loader-dunder-setattr',
+              'unmocked-patch-dunder',
               'Uses a blacklisted salt loader dunder usage in tests.'),
     'W8502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch()\' instead.',
-              'blacklisted-loader-setattr',
+              'unmocked-patch',
               'Uses a blacklisted salt loader dunder usage in tests.'),
     'W8503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
-              'blacklisted-loader-dunder-update',
+              'unmocked-patch-dunder-update',
               'Uses a blacklisted salt loader dunder usage in tests.'),
 }
 
@@ -233,7 +233,7 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
 
     __implements__ = IAstroidChecker
 
-    name = 'blacklisted-loader-modules-usage'
+    name = 'blacklisted-unmocked-patching'
     msgs = BLACKLISTED_LOADER_USAGE_MSGS
     priority = -2
 
@@ -252,21 +252,21 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
         self.process_module = False
         self.imported_salt_modules = {}
 
-    @check_messages('blacklisted-loader-modules-usage')
+    @check_messages('blacklisted-unmocked-patching')
     def visit_module(self, node):
         module_filename = node.root().file
         if not fnmatch.fnmatch(os.path.basename(module_filename), 'test_*.py*'):
             return
         self.process_module = True
 
-    @check_messages('blacklisted-loader-modules-usage')
+    @check_messages('blacklisted-unmocked-patching')
     def leave_module(self, node):
         if self.process_module:
             # Reset
             self.process_module = False
             self.imported_salt_modules = {}
 
-    @check_messages('blacklisted-loader-modules-usage')
+    @check_messages('blacklisted-unmocked-patching')
     def visit_import(self, node):
         '''triggered when an import statement is seen'''
         if self.process_module:
@@ -280,7 +280,7 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
                 if module not in self.imported_salt_modules:
                     self.imported_salt_modules[module] = module
 
-    @check_messages('blacklisted-loader-modules-usage')
+    @check_messages('blacklisted-unmocked-patching')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
         if self.process_module:
@@ -307,22 +307,15 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
                 return
             if node_left.value.attrname in self.salt_dunders:
                 self.add_message(
-                    'blacklisted-loader-dunder-update',
+                    'unmocked-patch-dunder-update',
                     node=node,
                     args=(node_left.value.attrname,
                           self.imported_salt_modules[node_left.value.expr.name])
                 )
                 return
 
-        #if isinstance(node_left, astroid.Attribute):
-        #    return
-        if not hasattr(node_left, 'expr'):
-            return
         if not isinstance(node_left, astroid.AssignAttr):
             return
-
-        #if not isinstance(node_left.expr, astroid.AssignAttr):
-        #    return
 
         try:
             if node_left.expr.name not in self.imported_salt_modules:
@@ -337,7 +330,7 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
         if node_left.attrname in self.salt_dunders:
             # We're changing salt dunders
             self.add_message(
-                'blacklisted-loader-dunder-setattr',
+                'unmocked-patch-dunder',
                 node=node,
                 args=(node_left.attrname,
                       self.imported_salt_modules[node_left.expr.name])
@@ -346,7 +339,7 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
 
         # Changing random attributes
         self.add_message(
-            'blacklisted-loader-setattr',
+            'unmocked-patch',
             node=node,
             args=(node_left.attrname,
                   self.imported_salt_modules[node_left.expr.name])
