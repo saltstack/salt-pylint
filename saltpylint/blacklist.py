@@ -23,22 +23,22 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
 BLACKLISTED_IMPORTS_MSGS = {
-    'W8402': ('Uses of a blacklisted module %r: %s',
+    'E8402': ('Uses of a blacklisted module %r: %s',
               'blacklisted-module',
               'Used a module marked as blacklisted is imported.'),
-    'W8403': ('Uses of a blacklisted external module %r: %s',
+    'E8403': ('Uses of a blacklisted external module %r: %s',
               'blacklisted-external-module',
               'Used a module marked as blacklisted is imported.'),
-    'W8404': ('Uses of a blacklisted import %r: %s',
+    'E8404': ('Uses of a blacklisted import %r: %s',
               'blacklisted-import',
               'Used an import marked as blacklisted.'),
-    'W8405': ('Uses of an external blacklisted import %r: %s',
+    'E8405': ('Uses of an external blacklisted import %r: %s',
               'blacklisted-external-import',
               'Used an external import marked as blacklisted.'),
-    'W8406': ('Uses of blacklisted test module execution code: %s',
+    'E8406': ('Uses of blacklisted test module execution code: %s',
               'blacklisted-test-module-execution',
               'Uses of blacklisted test module execution code.'),
-    'W8407': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
+    'E8407': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
               'Please remove the import and any calls to \'ensure_in_syspath()\'.',
               'blacklisted-syspath-update',
               'Uses of blacklisted sys.path updating through ensure_in_syspath.'),
@@ -222,15 +222,15 @@ class BlacklistedImportsChecker(BaseChecker):
                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
 
 BLACKLISTED_LOADER_USAGE_MSGS = {
-    'W8501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
+    'E8501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
               'unmocked-patch-dunder',
               'Uses a blacklisted salt loader dunder usage in tests.'),
-    'W8502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
+    'E8502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch()\' instead.',
               'unmocked-patch',
               'Uses a blacklisted salt loader dunder usage in tests.'),
-    'W8503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
+    'E8503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
               'unmocked-patch-dunder-update',
               'Uses a blacklisted salt loader dunder usage in tests.'),
@@ -355,10 +355,10 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
 
 
 MOVED_TEST_CASE_CLASSES_MSGS = {
-    'W8490': ('Moved test case base class detected. %s',
+    'E8490': ('Moved test case base class detected. %s',
               'moved-test-case-class',
               'Moved test case base class detected.'),
-    'W8491': ('Moved test case mixin class detected. %s',
+    'E8491': ('Moved test case mixin class detected. %s',
               'moved-test-case-mixin',
               'Moved test case mixin class detected.'),
 }
