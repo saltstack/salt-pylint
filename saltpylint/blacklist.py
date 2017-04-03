@@ -358,6 +358,9 @@ MOVED_TEST_CASE_CLASSES_MSGS = {
     'W8490': ('Moved test case base class detected. %s',
               'moved-test-case-class',
               'Moved test case base class detected.'),
+    'W8491': ('Moved test case mixin class detected. %s',
+              'moved-test-case-mixin',
+              'Moved test case mixin class detected.'),
 }
 
 
@@ -404,9 +407,18 @@ class MovedTestCaseClassChecker(BaseChecker):
     @check_messages('moved-test-case-class')
     def visit_classdef(self, node):
         for base in node.bases:
+            if not hasattr(base, 'attrname'):
+                continue
+            if base.attrname in ('TestCase',):
+                msg = 'Please use \'from tests.support.unit import {0}\''.format(base.attrname)
+                self.add_message('moved-test-case-class', node=node, args=(msg,))
             if base.attrname in ('ModuleCase', 'SyndicCase', 'ShellCase', 'SSHCase'):
                 msg = 'Please use \'from tests.support.case import {0}\''.format(base.attrname)
-            self.add_message('moved-test-case-class', node=node, args=(msg,))
+                self.add_message('moved-test-case-class', node=node, args=(msg,))
+            if base.attrname in ('AdaptedConfigurationTestCaseMixin', 'ShellCaseCommonTestsMixin',
+                                 'SaltMinionEventAssertsMixin'):
+                msg = 'Please use \'from tests.support.mixins import {0}\''.format(base.attrname)
+                self.add_message('moved-test-case-mixin', node=node, args=(msg,))
 
     def _check_moved_imports(self, node, module, import_as=None):
         names = []
