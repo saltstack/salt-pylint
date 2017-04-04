@@ -20,25 +20,25 @@ import fnmatch
 import astroid
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, is_builtin
 
 BLACKLISTED_IMPORTS_MSGS = {
-    'E8402': ('Uses of a blacklisted module %r: %s',
+    'E9402': ('Uses of a blacklisted module %r: %s',
               'blacklisted-module',
               'Used a module marked as blacklisted is imported.'),
-    'E8403': ('Uses of a blacklisted external module %r: %s',
+    'E9403': ('Uses of a blacklisted external module %r: %s',
               'blacklisted-external-module',
               'Used a module marked as blacklisted is imported.'),
-    'E8404': ('Uses of a blacklisted import %r: %s',
+    'E9404': ('Uses of a blacklisted import %r: %s',
               'blacklisted-import',
               'Used an import marked as blacklisted.'),
-    'E8405': ('Uses of an external blacklisted import %r: %s',
+    'E9405': ('Uses of an external blacklisted import %r: %s',
               'blacklisted-external-import',
               'Used an external import marked as blacklisted.'),
-    'E8406': ('Uses of blacklisted test module execution code: %s',
+    'E9406': ('Uses of blacklisted test module execution code: %s',
               'blacklisted-test-module-execution',
               'Uses of blacklisted test module execution code.'),
-    'E8407': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
+    'E9407': ('Uses of blacklisted sys.path updating through \'ensure_in_syspath\'. '
               'Please remove the import and any calls to \'ensure_in_syspath()\'.',
               'blacklisted-syspath-update',
               'Uses of blacklisted sys.path updating through ensure_in_syspath.'),
@@ -222,15 +222,15 @@ class BlacklistedImportsChecker(BaseChecker):
                     self.add_message('blacklisted-import', node=node, args=(mod_path, msg))
 
 BLACKLISTED_LOADER_USAGE_MSGS = {
-    'E8501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
+    'E9501': ('Blacklisted salt loader dunder usage. Setting dunder attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
               'unmocked-patch-dunder',
               'Uses a blacklisted salt loader dunder usage in tests.'),
-    'E8502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
+    'E9502': ('Blacklisted salt loader dunder usage. Setting attribute %r to module %r. '
               'Use \'salt.support.mock\' and \'patch()\' instead.',
               'unmocked-patch',
               'Uses a blacklisted salt loader dunder usage in tests.'),
-    'E8503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
+    'E9503': ('Blacklisted salt loader dunder usage. Updating dunder attribute %r on module %r. '
               'Use \'salt.support.mock\' and \'patch.dict()\' instead.',
               'unmocked-patch-dunder-update',
               'Uses a blacklisted salt loader dunder usage in tests.'),
@@ -354,11 +354,58 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
         )
 
 
+RESOURCE_LEAKAGE_MSGS = {
+    'W8470': ('Resource leakage detected. %s ',
+              'resource-leakage',
+              'Resource leakage detected.'),
+}
+
+
+class ResourceLeakageChecker(BaseChecker):
+
+    __implements__ = IAstroidChecker
+
+    name = 'resource-leakage'
+    msgs = RESOURCE_LEAKAGE_MSGS
+    priority = -2
+
+    def open(self):
+        self.inside_with_ctx = False
+
+    def close(self):
+        self.inside_with_ctx = False
+
+    def visit_with(self, node):
+        self.inside_with_ctx = True
+
+    def leave_with(self, node):
+        self.inside_with_ctx = False
+
+    def visit_call(self, node):
+        if isinstance(node.func, astroid.Attribute):
+            if node.func.attrname == 'fopen' and self.inside_with_ctx is False:
+                msg = ('Please call \'salt.utils.fopen\' using the \'with\' context '
+                       'manager, otherwise the file handle won\'t be closed and '
+                       'resource leakage will occur.')
+                self.add_message('resource-leakage', node=node, args=(msg,))
+        elif isinstance(node.func, astroid.Name):
+            if is_builtin(node.func.name) and node.func.name == 'open':
+                if self.inside_with_ctx:
+                    msg = ('Please use \'with salt.utils.fopen()\' instead of '
+                           '\'with open()\'. It assures salt does not leak '
+                           'file handles.')
+                else:
+                    msg = ('Please use \'salt.utils.fopen()\' instead of \'open()\' '
+                           'using the \'with\' context manager, otherwise the file '
+                           'handle won\'t be closed and resource leakage will occur.')
+                self.add_message('resource-leakage', node=node, args=(msg,))
+
+
 MOVED_TEST_CASE_CLASSES_MSGS = {
-    'E8490': ('Moved test case base class detected. %s',
+    'E9490': ('Moved test case base class detected. %s',
               'moved-test-case-class',
               'Moved test case base class detected.'),
-    'E8491': ('Moved test case mixin class detected. %s',
+    'E9491': ('Moved test case mixin class detected. %s',
               'moved-test-case-mixin',
               'Moved test case mixin class detected.'),
 }
@@ -436,6 +483,7 @@ def register(linter):
     '''
     Required method to auto register this checker
     '''
+    linter.register_checker(ResourceLeakageChecker(linter))
     linter.register_checker(BlacklistedImportsChecker(linter))
     linter.register_checker(MovedTestCaseClassChecker(linter))
     linter.register_checker(BlacklistedLoaderModulesUsageChecker(linter))
