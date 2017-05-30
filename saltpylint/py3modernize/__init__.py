@@ -50,7 +50,7 @@ if HAS_REQUIRED_LIBS:
         FIXER_UTIL_TOUCH_IMPORT(package, name, node)
 
 else:
-    FIXES = ()
+    ALL_FIXES = ()
 
 
 def diff_texts(old, new, diff_context_lines=3):
