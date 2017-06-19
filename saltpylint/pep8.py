@@ -9,9 +9,9 @@
     PEP-8 PyLint Plugin
     ===================
 
-    A bridge between the `pep8`_ library and PyLint
+    A bridge between the `pycodestyle`_ library and PyLint
 
-    .. _`pep8`: http://pep8.readthedocs.org
+    .. _`pycodestyle`: http://pycodestyle.readthedocs.org
 
     '''
 
@@ -29,14 +29,14 @@ from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 from pylint.__pkginfo__ import numversion as pylint_version_info
 
-# Import PEP8 libs
+# Import PYCODESTYLE library
 try:
-    from pep8 import StyleGuide, BaseReport
-    HAS_PEP8 = True
+    from pycodestyle import StyleGuide, BaseReport
+    HAS_PYCODESTYLE = True
 except ImportError:
-    HAS_PEP8 = False
+    HAS_PYCODESTYLE = False
     warnings.warn(
-        'No pep8 library could be imported. No PEP8 check\'s will be done',
+        'No pycodestyle library could be imported. No PEP8 check\'s will be done',
         RuntimeWarning
     )
 
@@ -46,7 +46,7 @@ _KNOWN_PEP8_IDS = []
 _UNHANDLED_PEP8_IDS = []
 
 
-if HAS_PEP8 is True:
+if HAS_PYCODESTYLE is True:
     class PyLintPEP8Reporter(BaseReport):
         def __init__(self, options):
             super(PyLintPEP8Reporter, self).__init__(options)
@@ -124,10 +124,10 @@ class _PEP8BaseChecker(BaseChecker):
             if code in ('E111', 'E113'):
                 if _PROCESSED_NODES[node.path].lines[lineno-1].strip().startswith('#'):
                     # If E111 is triggered in a comment I consider it, at
-                    # least, bad judgement. See https://github.com/jcrocholl/pep8/issues/300
+                    # least, bad judgement. See https://github.com/jcrocholl/pycodestyle/issues/300
 
                     # If E113 is triggered in comments, which I consider a bug,
-                    # skip it. See https://github.com/jcrocholl/pep8/issues/274
+                    # skip it. See https://github.com/jcrocholl/pycodestyle/issues/274
                     continue
             self.add_message(pylintcode, line=lineno, args=code)
 
@@ -417,7 +417,7 @@ def register(linter):
     '''
     required method to auto register this checker
     '''
-    if HAS_PEP8 is False:
+    if HAS_PYCODESTYLE is False:
         return
 
     linter.register_checker(PEP8Indentation(linter))
