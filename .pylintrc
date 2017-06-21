@@ -259,6 +259,7 @@ spelling-store-unknown-words=no
 [BASIC]
 
 # Required attributes for module, separated by a comma
+# DEPRECATED in PyLint 2.0
 #required-attributes=
 
 # List of builtins function names that should not be used, separated by a comma
@@ -350,6 +351,7 @@ docstring-min-length=-1
 
 # List of interface methods to ignore, separated by a comma. This is used for
 # instance to not check methods defines in Zope's Interface base class.
+# DEPRECATED in PyLint 2.0
 #ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 
 # List of method names used to declare (i.e. assign) instance attributes.

@@ -28,6 +28,10 @@ SALT_PYLINT_REQS = os.path.join(os.path.abspath(SETUP_DIRNAME), 'requirements.tx
 
 
 def _parse_requirements_file(requirements_file):
+    '''
+    Parse requirements.txt and return list suitable for
+    passing to ``install_requires`` parameter in ``setup()``.
+    '''
     parsed_requirements = []
     with open(requirements_file) as rfh:
         for line in rfh.readlines():
@@ -36,6 +40,25 @@ def _parse_requirements_file(requirements_file):
                 continue
             parsed_requirements.append(line)
     return parsed_requirements
+
+
+def _release_version():
+    '''
+    Returns release version
+    '''
+    with io.open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), encoding='utf-8') as fh_:
+        contents = fh_.read()
+        if not isinstance(contents, str):
+            contents = contents.encode('utf-8')
+        exec(  # pylint: disable=exec-used
+            compile(
+                contents,
+                os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'),
+                'exec'
+            )
+        )
+    # pylint: disable=undefined-variable
+    return __version__
 
 
 # Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS env var.
@@ -54,21 +77,8 @@ if 'USE_SETUPTOOLS' in os.environ or 'setuptools' in sys.modules:
 if USE_SETUPTOOLS is False:
     from distutils.core import setup  # pylint: disable=import-error,no-name-in-module
 
-with io.open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), encoding='utf-8') as fh_:
-    contents = fh_.read()
-    if not isinstance(contents, str):
-        contents = contents.encode('utf-8')
-    exec(  # pylint: disable=exec-used
-        compile(
-            contents,
-            os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'),
-            'exec'
-        )
-    )
-
-
 NAME = 'SaltPyLint'
-VERSION = __version__  # pylint: disable=undefined-variable
+VERSION = _release_version()
 DESCRIPTION = (
     'Required PyLint plugins needed in the several SaltStack projects.'
 )
