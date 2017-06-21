@@ -37,14 +37,19 @@ def _parse_requirements_file(requirements_file):
             parsed_requirements.append(line)
     return parsed_requirements
 
-if 'USE_SETUPTOOLS' in os.environ:
+
+# Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS env var.
+# Or if setuptools was previously imported (which is the case when using 'pip').
+# This ensures consistent behavior, but allows for advanced usage with
+# virtualenv, buildout, and others.
+if 'USE_SETUPTOOLS' in os.environ or 'setuptools' in sys.modules:
     try:
         from setuptools import setup
         USE_SETUPTOOLS = True
+        # This allows correct installation of dependencies with ``pip install``.
         SETUP_KWARGS['install_requires'] = _parse_requirements_file(SALT_PYLINT_REQS)
     except ImportError:
         USE_SETUPTOOLS = False
-
 
 if USE_SETUPTOOLS is False:
     from distutils.core import setup  # pylint: disable=import-error,no-name-in-module
