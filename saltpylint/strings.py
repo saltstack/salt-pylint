@@ -53,6 +53,9 @@ MSGS = {
     'E1322': ('Repr flag (!r) used in string: %r',
               'repr-flag-used-in-string',
               'Repr flag (!r) used in string'),
+    'E1323': ('String formatting used in logging: %r',
+              'str-format-in-logging',
+              'String formatting used in logging'),
 }
 
 BAD_FORMATTING_SLOT = re.compile(r'(\{![\w]{1}\}|\{\})')
@@ -116,6 +119,10 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
+        self.visit_call(node)
+
+    @check_messages(*(MSGS.keys()))
+    def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if isinstance(func, astroid.BoundMethod) and func.name == 'format':
             # If there's a .format() call, run the code below
@@ -148,6 +155,27 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                         self.add_message(
                             msgid, node=inferred, args=inferred.value
                         )
+                try:
+                    # Walk back up until no parents are found and look for a
+                    # logging.RootLogger instance in the parent types
+                    ptr = node
+                    while True:
+                        parent = ptr.parent
+                        for inferred in parent.func.expr.infer():
+                            try:
+                                instance_type = inferred.pytype().split('.')[0]
+                            except TypeError:
+                                continue
+                            if instance_type == 'logging':
+                                self.add_message(
+                                    'E1323',
+                                    node=node,
+                                    args=node.as_string(),
+                                )
+                        ptr = parent
+                except (AttributeError, astroid.exceptions.NameInferenceError):
+                    pass
+
             elif not hasattr(node.func.expr, 'value'):
                 # If it does not have an value attribute, it's not worth
                 # checking
