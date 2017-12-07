@@ -53,10 +53,7 @@ MSGS = {
     'E1322': ('Repr flag (!r) used in string: %r',
               'repr-flag-used-in-string',
               'Repr flag (!r) used in string'),
-    'E1323': ('Non-unicode-string: %r',
-              'non-unicode-string',
-              'Non-unicode string'),
-    'E1324': ('String formatting used in logging: %r',
+    'E1323': ('String formatting used in logging: %r',
               'str-format-in-logging',
               'String formatting used in logging'),
 }
@@ -171,7 +168,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                                 continue
                             if instance_type == 'logging':
                                 self.add_message(
-                                    'E1324',
+                                    'E1323',
                                     node=node,
                                     args=node.as_string(),
                                 )
@@ -195,16 +192,6 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 self.add_message(
                     'E1320', node=node, args=node.func.expr.value
                 )
-
-    @check_messages(*(MSGS.keys()))
-    def visit_const(self, node):
-        '''
-        Flag non-unicode string literals
-        '''
-        if not six.PY2 or not isinstance(node.value, six.string_types):
-            return
-        if isinstance(node.value, str):
-            self.add_message('E1323', node=node, args=node.value)
 
 
 def register(linter):
