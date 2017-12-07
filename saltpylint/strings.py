@@ -122,6 +122,10 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
+        self.visit_call(node)
+
+    @check_messages(*(MSGS.keys()))
+    def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if isinstance(func, astroid.BoundMethod) and func.name == 'format':
             # If there's a .format() call, run the code below
