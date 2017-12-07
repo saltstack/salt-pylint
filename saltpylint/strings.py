@@ -176,7 +176,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                                     args=node.as_string(),
                                 )
                         ptr = parent
-                except AttributeError:
+                except (AttributeError, astroid.exceptions.NameInferenceError):
                     pass
 
             elif not hasattr(node.func.expr, 'value'):
