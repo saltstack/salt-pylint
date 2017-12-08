@@ -544,21 +544,23 @@ class BlacklistedFunctionsChecker(BaseChecker):
 
     @check_messages('blacklisted-functions')
     def visit_call(self, node):
-        full_name = self._get_full_name(node)
-        if full_name is not None:
-            try:
-                self.add_message(
-                    'blacklisted-function',
-                    node=node,
-                    args=(full_name, self.blacklisted_functions[full_name])
-                )
-            except KeyError:
-                # Not blacklisted
-                pass
+        if self.blacklisted_functions:
+            full_name = self._get_full_name(node)
+            if full_name is not None:
+                try:
+                    self.add_message(
+                        'blacklisted-function',
+                        node=node,
+                        args=(full_name, self.blacklisted_functions[full_name])
+                    )
+                except KeyError:
+                    # Not blacklisted
+                    pass
 
     @check_messages('blacklisted-functions')
     def visit_callfunc(self, node):
-        self.visit_call(node)
+        if self.blacklisted_functions:
+            self.visit_call(node)
 
 
 def register(linter):
