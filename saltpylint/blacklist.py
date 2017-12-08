@@ -19,7 +19,7 @@ import fnmatch
 # Import pylint libs
 import astroid
 from pylint.interfaces import IAstroidChecker
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, is_builtin
 
 BLACKLISTED_IMPORTS_MSGS = {
@@ -479,6 +479,88 @@ class MovedTestCaseClassChecker(BaseChecker):
             self.add_message('moved-test-case-class', node=node, args=(msg,))
 
 
+BLACKLISTED_FUNCTIONS_MSGS = {
+    'E9601': ('Use of blacklisted function %s (use %s instead)',
+              'blacklisted-function',
+              'Used a function marked as blacklisted'),
+    }
+
+
+class BlacklistedFunctionsChecker(BaseChecker):
+
+    __implements__ = IAstroidChecker
+
+    name = 'blacklisted-functions'
+    msgs = BLACKLISTED_FUNCTIONS_MSGS
+    priority = -2
+    max_depth = 20
+
+    options = (
+        ('blacklisted-functions',
+         {'default': '', 'type': 'string',
+          'metavar': 'bad1=good1,bad2=good2',
+          'help': 'List of blacklisted functions and their recommended '
+                  'replacements'}),
+    )
+
+    def open(self):
+        self.blacklisted_functions = {}
+        blacklist = [
+            x.strip() for x in self.config.blacklisted_functions.split(',')]
+        for item in [x.strip() for x in
+                     self.config.blacklisted_functions.split(',')]:
+            try:
+                key, val = [x.strip() for x in item.split('=')]
+            except ValueError:
+                pass
+            else:
+                self.blacklisted_functions[key] = val
+
+    def _get_full_name(self, node):
+        try:
+            func = utils.safe_infer(node.func)
+            if func.name.__str__() == 'Uninferable':
+                return
+        except Exception:
+            func = None
+        if func is None:
+            return
+        ret = []
+        depth = 0
+        while func is not None:
+            depth += 1
+            if depth > self.max_depth:
+                # Prevent endless loop
+                return
+            try:
+                ret.append(func.name)
+            except AttributeError:
+                return
+            func = func.parent
+        # ret will contain the levels of the function from last to first (e.g.
+        # ['walk', 'os']. Reverse it and join with dots to get the correct
+        # full name for the function.
+        return '.'.join(ret[::-1])
+
+    @check_messages('blacklisted-functions')
+    def visit_call(self, node):
+        full_name = self._get_full_name(node)
+        if full_name is not None:
+            try:
+                self.add_message(
+                    'blacklisted-function',
+                    node=node,
+                    args=(full_name, self.blacklisted_functions[full_name])
+                )
+            except KeyError:
+                # Not blacklisted
+                pass
+
+    @check_messages('blacklisted-functions')
+    def visit_callfunc(self, node):
+        self.visit_call(node)
+
+
 def register(linter):
     '''
     Required method to auto register this checker
@@ -487,3 +569,4 @@ def register(linter):
     linter.register_checker(BlacklistedImportsChecker(linter))
     linter.register_checker(MovedTestCaseClassChecker(linter))
     linter.register_checker(BlacklistedLoaderModulesUsageChecker(linter))
+    linter.register_checker(BlacklistedFunctionsChecker(linter))
