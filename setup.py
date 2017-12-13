@@ -47,18 +47,13 @@ def _release_version():
     Returns release version
     '''
     with io.open(os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'), encoding='utf-8') as fh_:
+        exec_locals = {}
+        exec_globals = {}
         contents = fh_.read()
         if not isinstance(contents, str):
             contents = contents.encode('utf-8')
-        exec(  # pylint: disable=exec-used
-            compile(
-                contents,
-                os.path.join(SETUP_DIRNAME, 'saltpylint', 'version.py'),
-                'exec'
-            )
-        )
-    # pylint: disable=undefined-variable
-    return __version__
+        exec(contents, exec_globals, exec_locals)  # pylint: disable=exec-used
+        return exec_locals['__version__']
 
 
 # Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS env var.
