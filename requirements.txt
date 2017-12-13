@@ -1,3 +1,4 @@
-PyLint==1.6.5
+PyLint==1.7.5
+python-astroid>=1.5.0
 pep8>=1.6.0,<=1.6.2
 modernize==0.5
