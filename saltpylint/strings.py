@@ -31,6 +31,13 @@ try:
 except ImportError:  # < pylint 1.0
     from pylint.interfaces import IASTNGChecker as IAstroidChecker  # pylint: disable=no-name-in-module
 
+from astroid.exceptions import InferenceError
+try:
+    from  astroid.exceptions import NameInferenceError
+except ImportError:
+    class NameInferenceError(Exception):
+        pass
+
 # Import 3rd-party libs
 import six
 
@@ -174,7 +181,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                                     args=node.as_string(),
                                 )
                         ptr = parent
-                except (AttributeError, astroid.exceptions.NameInferenceError):
+                except (AttributeError, InferenceError, NameInferenceError):
                     pass
 
             elif not hasattr(node.func.expr, 'value'):
