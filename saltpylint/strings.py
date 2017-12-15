@@ -156,12 +156,13 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                     if BAD_FORMATTING_SLOT.findall(inferred.value):
                         if self.config.un_indexed_curly_braces_always_error or \
                                 sys.version_info[:2] < (2, 7):
-                            msgid = 'E1320'
-                        else:
-                            msgid = 'W1320'
-                        self.add_message(
-                            msgid, node=inferred, args=inferred.value
-                        )
+                            self.add_message(
+                                'E1320', node=inferred, args=inferred.value
+                            )
+                        elif six.PY2:
+                            self.add_message(
+                                'W1320', node=inferred, args=inferred.value
+                            )
 
                 try:
                     # Walk back up until no parents are found and look for a
