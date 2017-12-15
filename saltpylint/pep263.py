@@ -62,21 +62,27 @@ class FileEncodingChecker(BaseChecker):
         '''
         pep263 = re.compile(six.b(self.RE_PEP263))
 
+        try:
+            file_stream = node.file_stream
+        except AttributeError:
+            # Pylint >= 1.8.1
+            file_stream = node.stream()
+
         # Store a reference to the node's file stream position
-        current_stream_position = node.file_stream.tell()
+        current_stream_position = file_stream.tell()
 
         # Go to the start of stream to achieve our logic
-        node.file_stream.seek(0)
+        file_stream.seek(0)
 
         # Grab the first two lines
-        twolines = list(itertools.islice(node.file_stream, 2))
+        twolines = list(itertools.islice(file_stream, 2))
         pep263_encoding = [m.group(1).lower() for l in twolines for m in [pep263.search(l)] if m]
 
         multiple_encodings = len(pep263_encoding) > 1
         file_empty = len(twolines) == 0
 
         # Reset the node's file stream position
-        node.file_stream.seek(current_stream_position)
+        file_stream.seek(current_stream_position)
 
         # - If the file has an UTF-8 BOM and yet uses any other
         #   encoding, it will be caught by F0002
