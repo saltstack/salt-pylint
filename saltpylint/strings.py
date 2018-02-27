@@ -31,7 +31,7 @@ except ImportError:  # < pylint 1.0
 
 from astroid.exceptions import InferenceError
 try:
-    from  astroid.exceptions import NameInferenceError
+    from astroid.exceptions import NameInferenceError
 except ImportError:
     class NameInferenceError(Exception):
         pass
