@@ -26,7 +26,7 @@ import six
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseChecker
+from saltpylint.checkers import BaseChecker
 from pylint.__pkginfo__ import numversion as pylint_version_info
 
 # Import PEP8 libs

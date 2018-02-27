@@ -21,7 +21,7 @@ import stat
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseChecker
+from saltpylint.checkers import BaseChecker
 
 
 class FilePermsChecker(BaseChecker):

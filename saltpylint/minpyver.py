@@ -18,7 +18,7 @@ from __future__ import absolute_import
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseChecker
+from saltpylint.checkers import BaseChecker
 
 # Import 3rd-party libs
 try:
