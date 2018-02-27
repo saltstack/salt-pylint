@@ -22,8 +22,7 @@ import astroid
 import astroid.exceptions
 from astroid.modutils import is_relative, is_standard_module
 from pylint.interfaces import IAstroidChecker
-from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from saltpylint.checkers import BaseChecker, utils
 
 MSGS = {
     'W8410': ('3rd-party module import is not gated in a try/except: %r',
@@ -81,38 +80,38 @@ class ThirdPartyImportsChecker(BaseChecker):
         self.allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
 
     # pylint: disable=unused-argument
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def visit_if(self, node):
         self._inside_if = True
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def leave_if(self, node):
         self._inside_if = True
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
         self._inside_try_except = True
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def leave_tryexcept(self, node):
         self._inside_try_except = False
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def visit_functiondef(self, node):
         self._inside_funcdef = True
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def leave_functiondef(self, node):
         self._inside_funcdef = True
     # pylint: enable=unused-argument
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def visit_import(self, node):
         names = [name for name, _ in node.names]
         for name in names:
             self._check_third_party_import(node, name)
 
-    @check_messages('3rd-party-imports')
+    @utils.check_messages('3rd-party-imports')
     def visit_importfrom(self, node):
         self._check_third_party_import(node, node.modname)
 

@@ -21,7 +21,7 @@ except ImportError:
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseChecker
+from saltpylint.checkers import BaseChecker
 
 if HAS_REQUIRED_LIBS:
     FIXES = lib2to3_fix_names

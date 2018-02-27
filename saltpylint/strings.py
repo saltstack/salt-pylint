@@ -21,9 +21,7 @@ try:
     import astroid
 except ImportError:  # pylint < 1.0
     from logilab import astng as astroid  # pylint: disable=no-name-in-module
-from pylint.checkers import utils
-from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, parse_format_string
+from saltpylint.checkers import BaseChecker, utils
 
 try:
     # >= pylint 1.0
@@ -33,7 +31,7 @@ except ImportError:  # < pylint 1.0
 
 from astroid.exceptions import InferenceError
 try:
-    from  astroid.exceptions import NameInferenceError
+    from astroid.exceptions import NameInferenceError
 except ImportError:
     class NameInferenceError(Exception):
         pass
@@ -92,7 +90,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                  ),
                )
 
-    @check_messages(*(MSGS.keys()))
+    @utils.check_messages(*(MSGS.keys()))
     def visit_binop(self, node):
         if not self.config.enforce_string_formatting_over_substitution:
             return
@@ -105,7 +103,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
             return
 
         try:
-            required_keys, required_num_args = parse_format_string(node.left.value)
+            required_keys, required_num_args = utils.parse_format_string(node.left.value)
         except (utils.UnsupportedFormatCharacter, utils.IncompleteFormatString):
             # This is handled elsewere
             return
@@ -124,11 +122,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 'E1322', node=node.left, args=node.left.value
             )
 
-    @check_messages(*(MSGS.keys()))
-    def visit_callfunc(self, node):
-        self.visit_call(node)
-
-    @check_messages(*(MSGS.keys()))
+    @utils.check_messages(*(MSGS.keys()))
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if isinstance(func, astroid.BoundMethod) and func.name == 'format':
