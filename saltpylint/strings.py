@@ -14,6 +14,7 @@
 from __future__ import absolute_import
 import re
 import sys
+import tokenize
 
 # Import PyLint libs
 try:
@@ -22,6 +23,7 @@ try:
 except ImportError:  # pylint < 1.0
     from logilab import astng as astroid  # pylint: disable=no-name-in-module
 from saltpylint.checkers import BaseChecker, utils
+from pylint.checkers import BaseTokenChecker
 
 try:
     # >= pylint 1.0
@@ -29,6 +31,7 @@ try:
 except ImportError:  # < pylint 1.0
     from pylint.interfaces import IASTNGChecker as IAstroidChecker  # pylint: disable=no-name-in-module
 
+from pylint.interfaces import ITokenChecker, IRawChecker
 from astroid.exceptions import InferenceError
 try:
     from astroid.exceptions import NameInferenceError
@@ -40,7 +43,7 @@ except ImportError:
 import six
 
 
-MSGS = {
+STRING_FORMAT_MSGS = {
     'W1320': ('String format call with un-indexed curly braces: %r',
               'un-indexed-curly-braces-warning',
               'Under python 2.6 the curly braces on a \'string.format()\' '
@@ -71,7 +74,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     name = 'string'
-    msgs = MSGS
+    msgs = STRING_FORMAT_MSGS
     priority = -1
 
     options = (('un-indexed-curly-braces-always-error',
@@ -90,7 +93,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                  ),
                )
 
-    @utils.check_messages(*(MSGS.keys()))
+    @utils.check_messages(*(STRING_FORMAT_MSGS.keys()))
     def visit_binop(self, node):
         if not self.config.enforce_string_formatting_over_substitution:
             return
@@ -122,7 +125,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 'E1322', node=node.left, args=node.left.value
             )
 
-    @utils.check_messages(*(MSGS.keys()))
+    @utils.check_messages(*(STRING_FORMAT_MSGS.keys()))
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if isinstance(func, astroid.BoundMethod) and func.name == 'format':
@@ -197,6 +200,63 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 )
 
 
+STRING_LITERALS_MSGS = {
+    'E1400': ('Null byte used in unicode string literal (should be wrapped in str())',
+              'null-byte-unicode-literal',
+              'Null byte used in unicode string literal'),
+}
+
+
+class StringLiteralChecker(BaseTokenChecker):
+    '''
+    Check string literals
+    '''
+    __implements__ = (ITokenChecker, IRawChecker)
+    name = 'string_literal'
+    msgs = STRING_LITERALS_MSGS
+
+    def process_module(self, module):
+        self._unicode_literals = 'unicode_literals' in module.future_imports
+
+    def process_tokens(self, tokens):
+        for (tok_type, token, (start_row, _), _, _) in tokens:
+            if tok_type == tokenize.STRING:
+                # 'token' is the whole un-parsed token; we can look at the start
+                # of it to see whether it's a raw or unicode string etc.
+                self.process_string_token(token, start_row)
+
+    def process_string_token(self, token, start_row):
+        if not six.PY2:
+            return
+        for i, c in enumerate(token):
+            if c in '\'\"':
+                quote_char = c
+                break
+        # pylint: disable=undefined-loop-variable
+        prefix = token[:i].lower() #  markers like u, b, r.
+        after_prefix = token[i:]
+        if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
+            string_body = after_prefix[3:-3]
+        else:
+            string_body = after_prefix[1:-1]  # Chop off quotes
+        # No special checks on raw strings at the moment.
+        if 'r' not in prefix:
+            self.process_non_raw_string_token(prefix, string_body, start_row)
+
+    def process_non_raw_string_token(self, prefix, string_body, start_row):
+        '''
+        check for bad escapes in a non-raw string.
+
+        prefix: lowercase string of eg 'ur' string prefix markers.
+        string_body: the un-parsed body of the string, not including the quote
+        marks.
+        start_row: integer line number in the source.
+        '''
+        if 'u' in prefix:
+            if string_body.find('\\0') != -1:
+                self.add_message('null-byte-unicode-literal', line=start_row)
+
 def register(linter):
     '''required method to auto register this checker '''
     linter.register_checker(StringCurlyBracesFormatIndexChecker(linter))
+    linter.register_checker(StringLiteralChecker(linter))
