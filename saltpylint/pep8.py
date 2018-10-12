@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''
     :codeauthor: :email:`Pedro Algarvio (pedro@algarvio.me)`
-    :copyright: © 2013 by the SaltStack Team, see AUTHORS for more details.
+    :copyright: © 2013-2018 by the SaltStack Team, see AUTHORS for more details.
     :license: Apache 2.0, see LICENSE for more details.
 
 
@@ -26,17 +26,17 @@ import six
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from saltpylint.checkers import BaseChecker
 from pylint.__pkginfo__ import numversion as pylint_version_info
+from saltpylint.checkers import BaseChecker
 
 # Import PEP8 libs
 try:
-    from pep8 import StyleGuide, BaseReport
+    from pycodestyle import StyleGuide, BaseReport
     HAS_PEP8 = True
 except ImportError:
     HAS_PEP8 = False
     warnings.warn(
-        'No pep8 library could be imported. No PEP8 check\'s will be done',
+        'No pycodestyle library could be imported. No PEP8 check\'s will be done',
         RuntimeWarning
     )
 
@@ -93,43 +93,50 @@ class _PEP8BaseChecker(BaseChecker):
 
         the module's content is accessible via node.file_stream object
         '''
-        if node.path not in _PROCESSED_NODES:
-            stylechecker = StyleGuide(
-                parse_argv=False, config_file=False, quiet=2,
-                reporter=PyLintPEP8Reporter
-            )
+        nodepaths = []
+        if not isinstance(node.path, list):
+            nodepaths = [node.path]
+        else:
+            nodepaths = node.path
 
-            _PROCESSED_NODES[node.path] = stylechecker.check_files([node.path])
+        for node_path in nodepaths:
+            if node_path not in _PROCESSED_NODES:
+                stylechecker = StyleGuide(
+                    parse_argv=False, config_file=False, quiet=2,
+                    reporter=PyLintPEP8Reporter
+                )
 
-        for code, lineno in _PROCESSED_NODES[node.path].locations:
-            pylintcode = '{0}8{1}'.format(code[0], code[1:])
-            if pylintcode in self.msgs_map:
-                # This will be handled by PyLint itself, skip it
-                continue
+                _PROCESSED_NODES[node_path] = stylechecker.check_files([node_path])
 
-            if pylintcode not in _KNOWN_PEP8_IDS:
-                if pylintcode not in _UNHANDLED_PEP8_IDS:
-                    _UNHANDLED_PEP8_IDS.append(pylintcode)
-                    msg = 'The following code, {0}, was not handled by the PEP8 plugin'.format(pylintcode)
-                    if logging.root.handlers:
-                        logging.getLogger(__name__).warning(msg)
-                    else:
-                        sys.stderr.write('{0}\n'.format(msg))
-                continue
-
-            if pylintcode not in self._msgs:
-                # Not for our class implementation to handle
-                continue
-
-            if code in ('E111', 'E113'):
-                if _PROCESSED_NODES[node.path].lines[lineno-1].strip().startswith('#'):
-                    # If E111 is triggered in a comment I consider it, at
-                    # least, bad judgement. See https://github.com/jcrocholl/pep8/issues/300
-
-                    # If E113 is triggered in comments, which I consider a bug,
-                    # skip it. See https://github.com/jcrocholl/pep8/issues/274
+            for code, lineno in _PROCESSED_NODES[node_path].locations:
+                pylintcode = '{0}8{1}'.format(code[0], code[1:])
+                if pylintcode in self.msgs_map:
+                    # This will be handled by PyLint itself, skip it
                     continue
-            self.add_message(pylintcode, line=lineno, args=code)
+
+                if pylintcode not in _KNOWN_PEP8_IDS:
+                    if pylintcode not in _UNHANDLED_PEP8_IDS:
+                        _UNHANDLED_PEP8_IDS.append(pylintcode)
+                        msg = 'The following code, {0}, was not handled by the PEP8 plugin'.format(pylintcode)
+                        if logging.root.handlers:
+                            logging.getLogger(__name__).warning(msg)
+                        else:
+                            sys.stderr.write('{0}\n'.format(msg))
+                    continue
+
+                if pylintcode not in self._msgs:
+                    # Not for our class implementation to handle
+                    continue
+
+                if code in ('E111', 'E113'):
+                    if _PROCESSED_NODES[node_path].lines[lineno-1].strip().startswith('#'):
+                        # If E111 is triggered in a comment I consider it, at
+                        # least, bad judgement. See https://github.com/jcrocholl/pep8/issues/300
+
+                        # If E113 is triggered in comments, which I consider a bug,
+                        # skip it. See https://github.com/jcrocholl/pep8/issues/274
+                        continue
+                self.add_message(pylintcode, line=lineno, args=code)
 
 
 class PEP8Indentation(_PEP8BaseChecker):

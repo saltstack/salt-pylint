@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''
     :codeauthor: :email:`Pedro Algarvio (pedro@algarvio.me)`
-    :copyright: © 2013 by the SaltStack Team, see AUTHORS for more details.
+    :copyright: © 2013-2018 by the SaltStack Team, see AUTHORS for more details.
     :license: Apache 2.0, see LICENSE for more details.
 
 
@@ -40,4 +40,7 @@ def register(linter):
     '''
     Register the transformation functions.
     '''
-    MANAGER.register_transform(nodes.Class, rootlogger_transform)
+    try:
+        MANAGER.register_transform(nodes.Class, rootlogger_transform)
+    except AttributeError:
+        MANAGER.register_transform(nodes.ClassDef, rootlogger_transform)
