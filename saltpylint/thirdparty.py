@@ -102,7 +102,7 @@ class ThirdPartyImportsChecker(BaseChecker):
 
     @utils.check_messages('3rd-party-imports')
     def leave_functiondef(self, node):
-        self._inside_funcdef = True
+        self._inside_funcdef = False
     # pylint: enable=unused-argument
 
     @utils.check_messages('3rd-party-imports')
