@@ -26,17 +26,17 @@ import six
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
-from saltpylint.checkers import BaseChecker
 from pylint.__pkginfo__ import numversion as pylint_version_info
+from saltpylint.checkers import BaseChecker
 
 # Import PEP8 libs
 try:
-    from pep8 import StyleGuide, BaseReport
+    from pycodestyle import StyleGuide, BaseReport
     HAS_PEP8 = True
 except ImportError:
     HAS_PEP8 = False
     warnings.warn(
-        'No pep8 library could be imported. No PEP8 check\'s will be done',
+        'No pycodestyle library could be imported. No PEP8 check\'s will be done',
         RuntimeWarning
     )
 
