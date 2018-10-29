@@ -59,7 +59,7 @@ if HAS_PEP8 is True:
             if code:
                 # E123, at least, is not reporting it's code in the above call,
                 # don't want to bother about that now
-                self.locations.append((code, line_number))
+                self.locations.append((code, line_number, text.split(code, 1)[-1].strip()))
 
 
 class _PEP8BaseChecker(BaseChecker):
@@ -108,7 +108,7 @@ class _PEP8BaseChecker(BaseChecker):
 
                 _PROCESSED_NODES[node_path] = stylechecker.check_files([node_path])
 
-            for code, lineno in _PROCESSED_NODES[node_path].locations:
+            for code, lineno, text in _PROCESSED_NODES[node_path].locations:
                 pylintcode = '{0}8{1}'.format(code[0], code[1:])
                 if pylintcode in self.msgs_map:
                     # This will be handled by PyLint itself, skip it
@@ -136,7 +136,7 @@ class _PEP8BaseChecker(BaseChecker):
                         # If E113 is triggered in comments, which I consider a bug,
                         # skip it. See https://github.com/jcrocholl/pep8/issues/274
                         continue
-                self.add_message(pylintcode, line=lineno, args=code)
+                self.add_message(pylintcode, line=lineno, args=(code, text))
 
 
 class PEP8Indentation(_PEP8BaseChecker):
@@ -265,6 +265,8 @@ class PEP8BlankLine(_PEP8BaseChecker):
                   'too-many-blank-lines-3'),
         'E8304': ('PEP8 %s: blank lines found after function decorator',
                   'blank-lines-found-after-function-decorator'),
+        'E8305': ('PEP8 %s: %s',
+                  'blank-lines-found-after-class-or-function-decorator'),
     }
 
 
