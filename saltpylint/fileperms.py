@@ -60,20 +60,35 @@ class FilePermsChecker(BaseChecker):
                 return
 
         desired_perm = self.config.fileperms_default
-        desired_perm = desired_perm.strip('"').strip('\'').lstrip('0').zfill(4)
-        if desired_perm[0] != '0':
-            # Always include a leading zero
-            desired_perm = '0{0}'.format(desired_perm)
-
-        if sys.version_info < (3,):
-            module_perms = str(oct(stat.S_IMODE(os.stat(node.file).st_mode)))
+        if '-' in desired_perm:
+            desired_perm = desired_perm.split('-')
         else:
-            # The octal representation in python 3 has changed to 0o644 instead of 0644
-            if desired_perm[1] != 'o':
-                desired_perm = '0o' + desired_perm[1:]
-            module_perms = oct(stat.S_IMODE(os.stat(node.file).st_mode))
-        if module_perms != desired_perm:
-            self.add_message('E0599', line=1, args=(desired_perm, module_perms))
+            desired_perm = [desired_perm]
+
+        if len(desired_perm) > 2:
+            raise RuntimeError('Permission ranges should be like XXXX-YYYY')
+
+        for idx, perm in enumerate(desired_perm):
+            desired_perm[idx] = desired_perm[idx].strip('"').strip('\'').lstrip('0').zfill(4)
+            if desired_perm[idx][0] != '0':
+                # Always include a leading zero
+                desired_perm[idx] = '0{0}'.format(desired_perm[idx])
+            if sys.version_info > (3,):
+                # The octal representation in python 3 has changed to 0o644 instead of 0644
+                if desired_perm[idx][1] != 'o':
+                    desired_perm[idx] = '0o' + desired_perm[idx][1:]
+
+        module_perms = oct(stat.S_IMODE(os.stat(node.file).st_mode))
+        if sys.version_info < (3,):
+            module_perms = str(module_perms)
+
+        if len(desired_perm) == 1:
+            if module_perms != desired_perm:
+                self.add_message('E0599', line=1, args=(desired_perm[0], module_perms))
+        else:
+            if module_perms < desired_perm[0] or module_perms > desired_perm[1]:
+                desired_perm = '>= {0} OR <= {1}'.format(*desired_perm)
+                self.add_message('E0599', line=1, args=(desired_perm, module_perms))
 
 
 def register(linter):
