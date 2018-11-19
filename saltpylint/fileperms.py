@@ -83,7 +83,7 @@ class FilePermsChecker(BaseChecker):
             module_perms = str(module_perms)
 
         if len(desired_perm) == 1:
-            if module_perms != desired_perm:
+            if module_perms != desired_perm[0]:
                 self.add_message('E0599', line=1, args=(desired_perm[0], module_perms))
         else:
             if module_perms < desired_perm[0] or module_perms > desired_perm[1]:
