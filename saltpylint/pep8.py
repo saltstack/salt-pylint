@@ -330,6 +330,8 @@ class PEP8Statement(_PEP8BaseChecker):
                   'do-not-compare-types-use-isinstance'),
         'E8731': ('PEP8 %s: %s',
                   'do-not-assign-a-lambda-expression-use-a-def'),
+        'E8741': ('PEP8 %s: %s',
+                  'bad-variable-identifier-name'),
     }
 
 
