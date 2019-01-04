@@ -106,7 +106,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
             return
 
         try:
-            required_keys, required_num_args = utils.parse_format_string(node.left.value)
+            required_keys, required_num_args = utils.parse_format_string(node.left.value)[:2]
         except (utils.UnsupportedFormatCharacter, utils.IncompleteFormatString):
             # This is handled elsewere
             return
