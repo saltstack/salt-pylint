@@ -178,6 +178,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                                     node=node,
                                     args=node.as_string(),
                                 )
+                                break
                         ptr = parent
                 except (AttributeError, InferenceError, NameInferenceError):
                     pass
