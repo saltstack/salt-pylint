@@ -328,6 +328,8 @@ class PEP8Statement(_PEP8BaseChecker):
                   'test-for-object-identity-should-be-is-not'),
         'E8721': ('PEP8 %s: %s',
                   'do-not-compare-types-use-isinstance'),
+        'E8722': ('PEP8 %s: %s',
+                  'pep8-bare-except'),
         'E8731': ('PEP8 %s: %s',
                   'do-not-assign-a-lambda-expression-use-a-def'),
         'E8741': ('PEP8 %s: %s',
@@ -415,7 +417,9 @@ class PEP8DeprecationWarning(_PEP8BaseChecker):
         'W8603': ('PEP8 %s: %s',
                   'less-or-more-is-deprecated-use-no-equal'),
         'W8604': ('PEP8 %s: %s',
-                  'backticks-are-deprecated-use-repr')
+                  'backticks-are-deprecated-use-repr'),
+        'W8605': ('PEP8 %s: %s',
+                  'pep8-invalid-escape-sequence')
     }
 
 
