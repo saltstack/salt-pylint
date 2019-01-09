@@ -336,6 +336,11 @@ class PEP8Statement(_PEP8BaseChecker):
                   'bad-variable-identifier-name'),
     }
 
+    msgs_map = {
+        'E8722': 'W0702',
+        'E8741': 'C0103'
+    }
+
 
 class PEP8Runtime(_PEP8BaseChecker):
     '''
@@ -420,6 +425,10 @@ class PEP8DeprecationWarning(_PEP8BaseChecker):
                   'backticks-are-deprecated-use-repr'),
         'W8605': ('PEP8 %s: %s',
                   'pep8-invalid-escape-sequence')
+    }
+
+    msgs_map = {
+        'W8605': 'W1401'
     }
 
 
