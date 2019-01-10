@@ -248,6 +248,8 @@ class PEP8Whitespace(_PEP8BaseChecker):
                   'tab-after-keyword'),
         'E8274': ('PEP8 %s: %s',
                   'tab-before-keyword'),
+        'E8275': ('PEP8 %s: %s',
+                  'pep8-missing-whitespace-after-keyword')
     }
 
     msgs_map = {
@@ -273,6 +275,8 @@ class PEP8BlankLine(_PEP8BaseChecker):
                   'blank-lines-found-after-function-decorator'),
         'E8305': ('PEP8 %s: %s',
                   'blank-lines-found-after-class-or-function-decorator'),
+        'E8306': ('PEP8 %s: %s',
+                  'pep8-blank-lines-before-nested-definition'),
     }
 
 
@@ -318,6 +322,8 @@ class PEP8Statement(_PEP8BaseChecker):
                   'multiple-statements-on-one-line-semicolon'),
         'E8703': ('PEP8 %s: %s',
                   'statement-ends-with-a-semicolon'),
+        'E8704': ('PEP8 %s: %s',
+                  'pep8-multiple-statements-on-one-line'),
         'E8711': ('PEP8 %s: %s',
                   'comparison-to-None-should-be-if-cond-is-None'),
         'E8712': ('PEP8 %s: %s',
@@ -334,6 +340,10 @@ class PEP8Statement(_PEP8BaseChecker):
                   'do-not-assign-a-lambda-expression-use-a-def'),
         'E8741': ('PEP8 %s: %s',
                   'bad-variable-identifier-name'),
+        'E8742': ('PEP8 %s: %s',
+                  'bad-class-identifier-name'),
+        'E8743': ('PEP8 %s: %s',
+                  'bad-funtion-identifier-name'),
     }
 
     msgs_map = {
@@ -406,6 +416,10 @@ class BinaryOperatorLineBreaks(_PEP8BaseChecker):
     _msgs = {
         'W8503': ('PEP8 %s: %s',
                   'line-break-before-binary-operator'),
+        'W8504': ('PEP8 %s: %s',
+                  'pep8-line-break-after-binary-operator'),
+        'W8505': ('PEP8 %s: %s',
+                  'pep8-line-doc-too-long'),
     }
 
 
@@ -424,7 +438,9 @@ class PEP8DeprecationWarning(_PEP8BaseChecker):
         'W8604': ('PEP8 %s: %s',
                   'backticks-are-deprecated-use-repr'),
         'W8605': ('PEP8 %s: %s',
-                  'pep8-invalid-escape-sequence')
+                  'pep8-invalid-escape-sequence'),
+        'W8606': ('PEP8 %s: %s',
+                  'pep8-reserved-keywords')
     }
 
     msgs_map = {
