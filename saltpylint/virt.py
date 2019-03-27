@@ -15,7 +15,7 @@ class VirtChecker(BaseChecker):
     VIRT_LOG = 'log-in-virtual'
 
     msgs = {
-        'E1401': ('Log statment detected inside __virtual__ function. Remove it.',
+        'E1401': ('Log statement detected inside __virtual__ function. Remove it.',
                   VIRT_LOG,
                   'Loader processes __virtual__ so logging not in scope'),
     }
