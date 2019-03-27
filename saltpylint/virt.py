@@ -4,7 +4,7 @@ import astroid
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 
-class Virt_Checker(BaseChecker):
+class VirtChecker(BaseChecker):
     '''
     checks for compliance inside __virtual__
     '''
@@ -48,10 +48,18 @@ class Virt_Checker(BaseChecker):
                 if isinstance(functions, astroid.Call):
                     if isinstance(functions.func, astroid.Attribute):
                         try:
-                            if 'log' == functions.func.expr.name:
-                                self.add_message(
-                                    self.VIRT_LOG, node=functions
-                                )
+                            # Inspect each statement for an instance of 'logging'
+                            for inferred in functions.func.expr.infer():
+                                try:
+                                    instance_type = inferred.pytype().split('.')[0]
+                                except TypeError:
+                                    continue
+                                if instance_type == 'logging':
+                                    self.add_message(
+                                        self.VIRT_LOG, node=functions
+                                    )
+                                    # Found logger, don't need to keep processing this line
+                                    break
                         except AttributeError:
                             # Not a log function
                             return
@@ -60,4 +68,4 @@ def register(linter):
     '''
     required method to auto register this checker
     '''
-    linter.register_checker(Virt_Checker(linter))
+    linter.register_checker(VirtChecker(linter))
