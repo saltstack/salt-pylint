@@ -15,6 +15,7 @@
 
 # Import Python libs
 from __future__ import absolute_import
+import sys
 
 # Import PyLint libs
 from pylint.interfaces import IRawChecker
@@ -25,11 +26,12 @@ try:
     from saltpylint.ext import pyqver2
     HAS_PYQVER = True
 except ImportError:
-    import warnings  # pylint: disable=wrong-import-order
-    warnings.warn(
-        'Unable to import saltpylint.ext.pyqver. Running on Python 3? Checker skipped.',
-        RuntimeWarning
-    )
+    if sys.version_info[0] == 2:
+        import warnings  # pylint: disable=wrong-import-order
+        warnings.warn(
+            'Unable to import saltpylint.ext.pyqver2. Checker skipped.',
+            RuntimeWarning
+        )
     HAS_PYQVER = False
 
 
