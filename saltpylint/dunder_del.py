@@ -43,13 +43,6 @@ class DunderDelChecker(BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
-        '''
-        info: setups pylint dunder del checker
-        :param linter:
-        '''
-        super(BaseChecker, self).__init__(linter)
-
     def visit_functiondef(self, node):
         '''
         :param node: info about a function or method
