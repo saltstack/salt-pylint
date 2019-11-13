@@ -85,8 +85,6 @@ class _PEP8BaseChecker(BaseChecker):
         for code, (message, symbolic) in six.iteritems(self._msgs):
             self.msgs[code] = (message, symbolic, message)
 
-        self.msgs['E8888'] = ('PEP8 UNHANDLED CODE %s: %s', 'unhandled-pycodestyle-code')
-
         BaseChecker.__init__(self, linter=linter)
 
     def process_module(self, node):
@@ -119,7 +117,7 @@ class _PEP8BaseChecker(BaseChecker):
                 if pylintcode not in _KNOWN_PEP8_IDS:
                     if pylintcode not in _UNHANDLED_PEP8_IDS:
                         _UNHANDLED_PEP8_IDS.append(pylintcode)
-                        self.add_message('E8888', line=lineno, args=(code, text))
+                        self.add_message('W8888', line=lineno, args=(code, text))
                     continue
 
                 if pylintcode not in self._msgs:
@@ -141,6 +139,13 @@ class _PEP8BaseChecker(BaseChecker):
                         raise
                     # Message does not support being passed the text arg
                     self.add_message(pylintcode, line=lineno, args=(code,))
+
+
+class PEP8UnHandledCode(_PEP8BaseChecker):
+
+    _msgs = {
+        'W8888': ('PEP8 UNHANDLED CODE %s: %s', 'unhandled-pycodestyle-code')
+    }
 
 
 class PEP8Indentation(_PEP8BaseChecker):
@@ -466,6 +471,7 @@ def register(linter):
     if HAS_PEP8 is False:
         return
 
+    linter.register_checker(PEP8UnHandledCode(linter))
     linter.register_checker(PEP8Indentation(linter))
     linter.register_checker(PEP8Whitespace(linter))
     linter.register_checker(PEP8BlankLine(linter))
