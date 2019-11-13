@@ -85,6 +85,8 @@ class _PEP8BaseChecker(BaseChecker):
         for code, (message, symbolic) in six.iteritems(self._msgs):
             self.msgs[code] = (message, symbolic, message)
 
+        self.msgs['E8888'] = ('PEP8 UNHANDLED CODE %s: %s', 'unhandled-pycodestyle-code')
+
         BaseChecker.__init__(self, linter=linter)
 
     def process_module(self, node):
@@ -117,11 +119,7 @@ class _PEP8BaseChecker(BaseChecker):
                 if pylintcode not in _KNOWN_PEP8_IDS:
                     if pylintcode not in _UNHANDLED_PEP8_IDS:
                         _UNHANDLED_PEP8_IDS.append(pylintcode)
-                        msg = 'The following code, {0}, was not handled by the PEP8 plugin'.format(pylintcode)
-                        if logging.root.handlers:
-                            logging.getLogger(__name__).warning(msg)
-                        else:
-                            sys.stderr.write('{0}\n'.format(msg))
+                        self.add_message('E8888', line=lineno, args=(code, text))
                     continue
 
                 if pylintcode not in self._msgs:
@@ -165,6 +163,8 @@ class PEP8Indentation(_PEP8BaseChecker):
                   'expected-an-indented-block-comment'),
         'E8116': ('PEP8 %s: %s',
                   'unexpected-indentation-comment'),
+        'E8117': ('PEP8 %s: %s',
+                  'over-indented'),
         'E8121': ('PEP8 %s: %s',
                   'continuation-line-indentation-is-not-a-multiple-of-four'),
         'E8122': ('PEP8 %s: %s',
