@@ -313,12 +313,13 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
             if not isinstance(node_left.value, astroid.Attribute):
                 return
             if node_left.value.attrname in self.salt_dunders:
-                self.add_message(
-                    'unmocked-patch-dunder-update',
-                    node=node,
-                    args=(node_left.value.attrname,
-                          self.imported_salt_modules[node_left.value.expr.name])
-                )
+                if node_left.value.expr.name in self.imported_salt_modules:
+                    self.add_message(
+                        'unmocked-patch-dunder-update',
+                        node=node,
+                        args=(node_left.value.attrname,
+                              self.imported_salt_modules[node_left.value.expr.name])
+                    )
                 return
 
         if not isinstance(node_left, astroid.AssignAttr):
@@ -330,7 +331,7 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
                 # leave it alone, for now!
                 return
         except AttributeError:
-            # This mmight not be what we're looking for
+            # This might not be what we're looking for
             return
 
         # we're assigning to an imported salt module!
