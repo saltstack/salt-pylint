@@ -384,18 +384,18 @@ class ResourceLeakageChecker(BaseChecker):
     def visit_call(self, node):
         if isinstance(node.func, astroid.Attribute):
             if node.func.attrname == 'fopen' and self.inside_with_ctx is False:
-                msg = ('Please call \'salt.utils.fopen\' using the \'with\' context '
+                msg = ('Please call \'salt.utils.files.fopen\' using the \'with\' context '
                        'manager, otherwise the file handle won\'t be closed and '
                        'resource leakage will occur.')
                 self.add_message('resource-leakage', node=node, args=(msg,))
         elif isinstance(node.func, astroid.Name):
             if utils.is_builtin(node.func.name) and node.func.name == 'open':
                 if self.inside_with_ctx:
-                    msg = ('Please use \'with salt.utils.fopen()\' instead of '
+                    msg = ('Please use \'with salt.utils.files.fopen()\' instead of '
                            '\'with open()\'. It assures salt does not leak '
                            'file handles.')
                 else:
-                    msg = ('Please use \'salt.utils.fopen()\' instead of \'open()\' '
+                    msg = ('Please use \'salt.utils.files.fopen()\' instead of \'open()\' '
                            'using the \'with\' context manager, otherwise the file '
                            'handle won\'t be closed and resource leakage will occur.')
                 self.add_message('resource-leakage', node=node, args=(msg,))
