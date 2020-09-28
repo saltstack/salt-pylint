@@ -20,6 +20,7 @@ import os
 # Import pylint libs
 import astroid
 import astroid.exceptions
+import pkgutil
 from astroid.modutils import is_relative, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from saltpylint.checkers import BaseChecker, utils
@@ -62,10 +63,20 @@ class ThirdPartyImportsChecker(BaseChecker):
             'help': 'Known 3rd-party modules which don\' require being gated, separated by a comma'}),
     )
 
-    known_py2_modules = ('__builtin__', 'exceptions')
-    known_py3_modules = ('ipaddress', 'builtins')
-    known_common_std_modules = ('__future__',)
-    known_std_modules = known_py2_modules + known_py3_modules + known_common_std_modules
+    known_py2_modules = ['__builtin__', 'exceptions']
+    known_py3_modules = ['builtins']
+
+    unix_modules = ('posix', 'pwd', 'spwd', 'grp', 'crypt', 'termios', 'tty', 'pty', 'fcntl', 'pipes', 'resource', 'nis', 'syslog', 'posixpath')
+    win_modules = ('msilib', 'msvcrt', 'winreg', 'winsound', 'ntpath')
+
+    all_modules = {m[1]: m[0].path for m in pkgutil.iter_modules()}
+    std_modules_path = all_modules["os"]
+    std_modules = []
+    for mod, path in all_modules.items():
+        if path == std_modules_path and mod not in unix_modules + win_modules:
+            std_modules.append(mod)
+
+    known_std_modules = known_py2_modules + known_py3_modules + std_modules
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
