@@ -69,7 +69,7 @@ class ThirdPartyImportsChecker(BaseChecker):
     unix_modules = ('posix', 'pwd', 'spwd', 'grp', 'crypt', 'termios', 'tty', 'pty', 'fcntl', 'pipes', 'resource', 'nis', 'syslog', 'posixpath')
     win_modules = ('msilib', 'msvcrt', 'winreg', 'winsound', 'ntpath')
 
-    all_modules = {m[1]: m[0].path for m in pkgutil.iter_modules()}
+    all_modules = {m[1]: m[0] for m in pkgutil.iter_modules()}
     std_modules_path = all_modules["os"]
     std_modules = []
     for mod, path in all_modules.items():
