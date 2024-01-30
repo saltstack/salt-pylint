@@ -16,7 +16,6 @@ import re
 import itertools
 
 # Import PyLint libs
-from pylint.interfaces import IRawChecker
 from saltpylint.checkers import BaseChecker
 
 # Import 3rd-party libs
@@ -27,8 +26,6 @@ class FileEncodingChecker(BaseChecker):
     '''
     Check for PEP263 compliant file encoding in file.
     '''
-
-    __implements__ = IRawChecker
 
     name = 'pep263'
     msgs = {'W9901': ('PEP263: Multiple file encodings',

@@ -25,7 +25,6 @@ import warnings
 import six
 
 # Import PyLint libs
-from pylint.interfaces import IRawChecker
 from pylint.__pkginfo__ import numversion as pylint_version_info
 from saltpylint.checkers import BaseChecker
 
@@ -63,8 +62,6 @@ if HAS_PEP8 is True:
 
 
 class _PEP8BaseChecker(BaseChecker):
-
-    __implements__ = IRawChecker
 
     name = 'pep8'
 

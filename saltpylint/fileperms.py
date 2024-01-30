@@ -20,7 +20,6 @@ import glob
 import stat
 
 # Import PyLint libs
-from pylint.interfaces import IRawChecker
 from saltpylint.checkers import BaseChecker
 
 
@@ -28,8 +27,6 @@ class FilePermsChecker(BaseChecker):
     '''
     Check for files with undesirable permissions
     '''
-
-    __implements__ = IRawChecker
 
     name = 'fileperms'
     msgs = {'E0599': ('Module file has the wrong file permissions(expected %s): %s',

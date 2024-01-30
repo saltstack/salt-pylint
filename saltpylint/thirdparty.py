@@ -22,7 +22,6 @@ import astroid
 import astroid.exceptions
 import pkgutil
 from astroid.modutils import is_relative, is_standard_module
-from pylint.interfaces import IAstroidChecker
 from saltpylint.checkers import BaseChecker, utils
 
 MSGS = {
@@ -48,8 +47,6 @@ def get_import_package(modname):
 
 
 class ThirdPartyImportsChecker(BaseChecker):
-
-    __implements__ = IAstroidChecker
 
     name = '3rd-party-imports'
     msgs = MSGS
@@ -83,46 +80,37 @@ class ThirdPartyImportsChecker(BaseChecker):
         self._inside_try_except = False
         self._inside_funcdef = False
         self._inside_if = False
-        self.cwd = self.allowed_3rd_party_modules = None
+        self.cwd = self.allowed_3rd_party_modules = []
 
     def open(self):
         super(ThirdPartyImportsChecker, self).open()
         self.cwd = os.getcwd()
-        self.allowed_3rd_party_modules = set(self.config.allowed_3rd_party_modules)  # pylint: disable=no-member
 
     # pylint: disable=unused-argument
-    @utils.check_messages('3rd-party-imports')
     def visit_if(self, node):
         self._inside_if = True
 
-    @utils.check_messages('3rd-party-imports')
     def leave_if(self, node):
         self._inside_if = True
 
-    @utils.check_messages('3rd-party-imports')
     def visit_tryexcept(self, node):
         self._inside_try_except = True
 
-    @utils.check_messages('3rd-party-imports')
     def leave_tryexcept(self, node):
         self._inside_try_except = False
 
-    @utils.check_messages('3rd-party-imports')
     def visit_functiondef(self, node):
         self._inside_funcdef = True
 
-    @utils.check_messages('3rd-party-imports')
     def leave_functiondef(self, node):
         self._inside_funcdef = False
     # pylint: enable=unused-argument
 
-    @utils.check_messages('3rd-party-imports')
     def visit_import(self, node):
         names = [name for name, _ in node.names]
         for name in names:
             self._check_third_party_import(node, name)
 
-    @utils.check_messages('3rd-party-imports')
     def visit_importfrom(self, node):
         self._check_third_party_import(node, node.modname)
 

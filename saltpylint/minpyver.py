@@ -18,7 +18,6 @@ from __future__ import absolute_import
 import sys
 
 # Import PyLint libs
-from pylint.interfaces import IRawChecker
 from saltpylint.checkers import BaseChecker
 
 # Import 3rd-party libs
@@ -39,8 +38,6 @@ class MininumPythonVersionChecker(BaseChecker):
     '''
     Check the minimal required python version
     '''
-
-    __implements__ = IRawChecker
 
     name = 'mininum-python-version'
     msgs = {'E0598': ('Incompatible Python %s code found: %s',

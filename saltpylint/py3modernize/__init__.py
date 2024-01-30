@@ -20,7 +20,6 @@ except ImportError:
     )
 
 # Import PyLint libs
-from pylint.interfaces import IRawChecker
 from saltpylint.checkers import BaseChecker
 
 if HAS_REQUIRED_LIBS:
@@ -94,8 +93,6 @@ class Py3Modernize(BaseChecker):
     '''
     Check for PEP263 compliant file encoding in file.
     '''
-
-    __implements__ = IRawChecker
 
     name = 'modernize'
     msgs = {'W1698': ('Unable to run modernize. Parse Error: %s',
