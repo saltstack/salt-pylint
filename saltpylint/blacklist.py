@@ -19,7 +19,6 @@ import fnmatch
 # Import pylint libs
 import astroid
 from saltpylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
 
 BLACKLISTED_IMPORTS_MSGS = {
     'E9402': ('Uses of a blacklisted module %r: %s',
@@ -46,8 +45,6 @@ BLACKLISTED_IMPORTS_MSGS = {
 
 class BlacklistedImportsChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'blacklisted-imports'
     msgs = BLACKLISTED_IMPORTS_MSGS
     priority = -2
@@ -62,7 +59,6 @@ class BlacklistedImportsChecker(BaseChecker):
                                     'unittest',
                                     'unittest2')
 
-    @utils.check_messages('blacklisted-imports')
     def visit_import(self, node):
         '''triggered when an import statement is seen'''
         module_filename = node.root().file
@@ -75,7 +71,6 @@ class BlacklistedImportsChecker(BaseChecker):
         for name in names:
             self._check_blacklisted_module(node, name)
 
-    @utils.check_messages('blacklisted-imports')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
         module_filename = node.root().file
@@ -238,8 +233,6 @@ BLACKLISTED_LOADER_USAGE_MSGS = {
 
 class BlacklistedLoaderModulesUsageChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'blacklisted-unmocked-patching'
     msgs = BLACKLISTED_LOADER_USAGE_MSGS
     priority = -2
@@ -259,21 +252,18 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
         self.process_module = False
         self.imported_salt_modules = {}
 
-    @utils.check_messages('blacklisted-unmocked-patching')
     def visit_module(self, node):
         module_filename = node.root().file
         if not fnmatch.fnmatch(os.path.basename(module_filename), 'test_*.py*'):
             return
         self.process_module = True
 
-    @utils.check_messages('blacklisted-unmocked-patching')
     def leave_module(self, node):
         if self.process_module:
             # Reset
             self.process_module = False
             self.imported_salt_modules = {}
 
-    @utils.check_messages('blacklisted-unmocked-patching')
     def visit_import(self, node):
         '''triggered when an import statement is seen'''
         if self.process_module:
@@ -287,7 +277,6 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
                 if module not in self.imported_salt_modules:
                     self.imported_salt_modules[module] = module
 
-    @utils.check_messages('blacklisted-unmocked-patching')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
         if self.process_module:
@@ -301,7 +290,6 @@ class BlacklistedLoaderModulesUsageChecker(BaseChecker):
                 if module not in self.imported_salt_modules:
                     self.imported_salt_modules[module] = module
 
-    @utils.check_messages('blacklisted-loader-usage')
     def visit_assign(self, node, *args):
         if not self.process_module:
             return
@@ -363,8 +351,6 @@ RESOURCE_LEAKAGE_MSGS = {
 
 class ResourceLeakageChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'resource-leakage'
     msgs = RESOURCE_LEAKAGE_MSGS
     priority = -2
@@ -413,8 +399,6 @@ MOVED_TEST_CASE_CLASSES_MSGS = {
 
 class MovedTestCaseClassChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'moved-test-case-class'
     msgs = MOVED_TEST_CASE_CLASSES_MSGS
     priority = -2
@@ -425,20 +409,17 @@ class MovedTestCaseClassChecker(BaseChecker):
     def close(self):
         self.process_module = False
 
-    @utils.check_messages('moved-test-case-class')
     def visit_module(self, node):
         module_filename = node.root().file
         if not fnmatch.fnmatch(os.path.basename(module_filename), 'test_*.py*'):
             return
         self.process_module = True
 
-    @utils.check_messages('moved-test-case-class')
     def leave_module(self, node):
         if self.process_module:
             # Reset
             self.process_module = False
 
-    @utils.check_messages('moved-test-case-class')
     def visit_importfrom(self, node):
         '''triggered when a from statement is seen'''
         if self.process_module:
@@ -451,7 +432,6 @@ class MovedTestCaseClassChecker(BaseChecker):
                     continue
                 self._check_moved_imports(node, module)
 
-    @utils.check_messages('moved-test-case-class')
     def visit_classdef(self, node):
         for base in node.bases:
             if not hasattr(base, 'attrname'):
@@ -488,8 +468,6 @@ BLACKLISTED_FUNCTIONS_MSGS = {
 
 class BlacklistedFunctionsChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'blacklisted-functions'
     msgs = BLACKLISTED_FUNCTIONS_MSGS
     priority = -2
@@ -505,16 +483,6 @@ class BlacklistedFunctionsChecker(BaseChecker):
 
     def open(self):
         self.blacklisted_functions = {}
-        blacklist = [
-            x.strip() for x in self.config.blacklisted_functions.split(',')]
-        for item in [x.strip() for x in
-                     self.config.blacklisted_functions.split(',')]:
-            try:
-                key, val = [x.strip() for x in item.split('=')]
-            except ValueError:
-                pass
-            else:
-                self.blacklisted_functions[key] = val
 
     def _get_full_name(self, node):
         try:
@@ -542,7 +510,6 @@ class BlacklistedFunctionsChecker(BaseChecker):
         # full name for the function.
         return '.'.join(ret[::-1])
 
-    @utils.check_messages('blacklisted-functions')
     def visit_call(self, node):
         if self.blacklisted_functions:
             full_name = self._get_full_name(node)

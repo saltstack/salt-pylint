@@ -25,13 +25,6 @@ except ImportError:  # pylint < 1.0
 from saltpylint.checkers import BaseChecker, utils
 from pylint.checkers import BaseTokenChecker
 
-try:
-    # >= pylint 1.0
-    from pylint.interfaces import IAstroidChecker
-except ImportError:  # < pylint 1.0
-    from pylint.interfaces import IASTNGChecker as IAstroidChecker  # pylint: disable=no-name-in-module
-
-from pylint.interfaces import ITokenChecker, IRawChecker
 from astroid.exceptions import InferenceError
 try:
     from astroid.exceptions import NameInferenceError
@@ -71,8 +64,6 @@ BAD_FORMATTING_SLOT = re.compile(r'(\{![\w]{1}\}|\{\})')
 
 class StringCurlyBracesFormatIndexChecker(BaseChecker):
 
-    __implements__ = IAstroidChecker
-
     name = 'string'
     msgs = STRING_FORMAT_MSGS
     priority = -1
@@ -93,11 +84,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                  ),
                )
 
-    @utils.check_messages(*(STRING_FORMAT_MSGS.keys()))
     def visit_binop(self, node):
-        if not self.config.enforce_string_formatting_over_substitution:
-            return
-
         if node.op != '%':
             return
 
@@ -112,10 +99,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
             return
 
         if required_keys or required_num_args:
-            if self.config.string_substitutions_usage_is_an_error:
-                msgid = 'E1321'
-            else:
-                msgid = 'W1321'
+            msgid = 'W1321'
             self.add_message(
                 msgid, node=node.left, args=node.left.value
             )
@@ -125,7 +109,6 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                 'E1322', node=node.left, args=node.left.value
             )
 
-    @utils.check_messages(*(STRING_FORMAT_MSGS.keys()))
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if isinstance(func, astroid.BoundMethod) and func.name == 'format':
@@ -151,8 +134,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                         )
 
                     if BAD_FORMATTING_SLOT.findall(inferred.value):
-                        if self.config.un_indexed_curly_braces_always_error or \
-                                sys.version_info[:2] < (2, 7):
+                        if sys.version_info[:2] < (2, 7):
                             self.add_message(
                                 'E1320', node=inferred, args=inferred.value
                             )
@@ -212,7 +194,6 @@ class StringLiteralChecker(BaseTokenChecker):
     '''
     Check string literals
     '''
-    __implements__ = (ITokenChecker, IRawChecker)
     name = 'string_literal'
     msgs = STRING_LITERALS_MSGS
 
