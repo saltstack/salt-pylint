@@ -241,4 +241,7 @@ def register(linter):
     required method to auto register this checker
     '''
     if HAS_REQUIRED_LIBS:
-        linter.register_checker(Py3Modernize(linter))
+        try : 
+            linter.register_checker(Py3Modernize(linter))
+        except Exception as err:
+            logging.getLogger(__name__).warn(f"Error while register Py3Modernize linter, unexpected {err=}, {type(err)=}")            
