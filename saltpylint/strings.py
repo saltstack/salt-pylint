@@ -99,7 +99,10 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
             return
 
         if required_keys or required_num_args:
-            msgid = 'W1321'
+            if self.linter.config.string_substitutions_usage_is_an_error:
+                msgid = 'E1321'
+            else:
+                msgid = 'W1321'
             self.add_message(
                 msgid, node=node.left, args=node.left.value
             )
