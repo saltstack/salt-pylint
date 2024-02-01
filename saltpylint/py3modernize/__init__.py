@@ -244,4 +244,4 @@ def register(linter):
         try : 
             linter.register_checker(Py3Modernize(linter))
         except Exception as err:
-            logging.getLogger(__name__).warn(f"Error while register Py3Modernize linter, unexpected {err=}, {type(err)=}")            
+            logging.getLogger(__name__).warning(f"Error while register Py3Modernize linter, unexpected {err=}, {type(err)=}")            
