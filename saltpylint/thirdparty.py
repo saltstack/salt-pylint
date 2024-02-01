@@ -86,6 +86,7 @@ class ThirdPartyImportsChecker(BaseChecker):
     def open(self):
         super(ThirdPartyImportsChecker, self).open()
         self.cwd = os.getcwd()
+        self.allowed_3rd_party_modules = set(self.linter.config.allowed_3rd_party_modules)  # pylint: disable=no-member
 
     # pylint: disable=unused-argument
     def visit_if(self, node):
