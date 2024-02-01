@@ -80,7 +80,8 @@ class ThirdPartyImportsChecker(BaseChecker):
         self._inside_try_except = False
         self._inside_funcdef = False
         self._inside_if = False
-        self.cwd = self.allowed_3rd_party_modules = []
+        self.cwd = None
+        self.allowed_3rd_party_modules = []
 
     def open(self):
         super(ThirdPartyImportsChecker, self).open()
