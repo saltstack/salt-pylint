@@ -137,7 +137,7 @@ class StringCurlyBracesFormatIndexChecker(BaseChecker):
                         )
 
                     if BAD_FORMATTING_SLOT.findall(inferred.value):
-                        if sys.version_info[:2] < (2, 7):
+                        if self.linter.config.un_indexed_curly_braces_always_error:
                             self.add_message(
                                 'E1320', node=inferred, args=inferred.value
                             )
