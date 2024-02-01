@@ -483,6 +483,15 @@ class BlacklistedFunctionsChecker(BaseChecker):
 
     def open(self):
         self.blacklisted_functions = {}
+        blacklist = [
+            x.strip() for x in self.linter.config.blacklisted_functions.split(',')]
+        for item in blacklist:
+            try:
+                key, val = [x.strip() for x in item.split('=')]
+            except ValueError:
+                pass
+            else:
+                self.blacklisted_functions[key] = val
 
     def _get_full_name(self, node):
         try:
