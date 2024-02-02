@@ -55,3 +55,9 @@ target/
 
 # Auto generated version
 saltpylint/version.py
+
+# nvim backup files
+*~
+
+# pyenv
+.python-version
