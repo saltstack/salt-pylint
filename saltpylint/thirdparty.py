@@ -59,7 +59,6 @@ class ThirdPartyImportsChecker(BaseChecker):
         ),
     )
 
-    known_py2_modules: ClassVar = ["__builtin__", "exceptions"]
     known_py3_modules: ClassVar = ["builtins"]
 
     unix_modules = (
@@ -87,7 +86,7 @@ class ThirdPartyImportsChecker(BaseChecker):
         if path == std_modules_path and mod not in unix_modules + win_modules:
             std_modules.append(mod)
 
-    known_std_modules = known_py2_modules + known_py3_modules + std_modules
+    known_std_modules = known_py3_modules + std_modules
 
     def __init__(self, linter=None) -> None:
         BaseChecker.__init__(self, linter)
@@ -111,10 +110,10 @@ class ThirdPartyImportsChecker(BaseChecker):
     def leave_if(self, node):
         self._inside_if = True
 
-    def visit_tryexcept(self, node):
+    def visit_try(self, node):
         self._inside_try_except = True
 
-    def leave_tryexcept(self, node):
+    def leave_try(self, node):
         self._inside_try_except = False
 
     def visit_functiondef(self, node):
